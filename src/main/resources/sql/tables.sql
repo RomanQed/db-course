@@ -7,9 +7,9 @@ create table currencies
 create table exchanges
 (
     id     serial primary key,
-    _from  int references currencies (id) on delete cascade,
-    _to    int references currencies (id) on delete cascade,
-    factor double precision
+    _from  int references currencies (id) on delete cascade not null,
+    _to    int references currencies (id) on delete cascade not null,
+    factor double precision not null
 );
 
 create table categories
@@ -29,40 +29,40 @@ create table users
 create table budgets
 (
     id          serial primary key,
-    owner       int references currencies (id) on delete cascade,
-    currency    int references currencies (id) on delete cascade,
+    owner       int references currencies (id) on delete cascade not null,
+    currency    int references currencies (id) on delete cascade not null,
     _start      timestamp not null,
     _end        timestamp not null,
     description text      not null,
-    value       double precision
+    value       double precision not null
 );
 
 create table accounts
 (
     id          serial primary key,
-    owner       int references users (id) on delete cascade,
-    currency    int references currencies (id) on delete cascade,
+    owner       int references users (id) on delete cascade not null,
+    currency    int references currencies (id) on delete cascade not null,
     description text not null,
-    value       double precision
+    value       double precision not null
 );
 
 create table goals
 (
     id          serial primary key,
-    owner       int references users (id) on delete cascade,
-    account     int references accounts (id) on delete cascade,
+    owner       int references users (id) on delete cascade not null,
+    account     int references accounts (id) on delete cascade not null,
     description text not null,
-    target      double precision
+    target      double precision not null
 );
 
 create table transactions
 (
     id          serial primary key,
-    owner       int references users (id) on delete cascade,
-    category    int references categories (id) on delete cascade,
+    owner       int references users (id) on delete cascade not null,
+    category    int references categories (id) on delete cascade not null,
     _from       int references accounts (id) on delete cascade,
     _to         int references accounts (id) on delete cascade,
-    value       double precision,
+    value       double precision not null,
     description text      not null,
     _timestamp  timestamp not null
 );
