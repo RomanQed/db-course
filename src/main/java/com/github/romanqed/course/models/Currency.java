@@ -6,6 +6,8 @@ import com.github.romanqed.course.postgres.Getter;
 import com.github.romanqed.course.postgres.Setter;
 import com.github.romanqed.course.postgres.To;
 
+import java.util.Objects;
+
 @Model("currencies")
 public final class Currency implements Entity {
     private int id;
@@ -20,6 +22,12 @@ public final class Currency implements Entity {
     public static void from(Getter getter, Currency currency) {
         currency.id = getter.get("id", Integer.class);
         currency.name = getter.get("name", String.class);
+    }
+
+    public static Currency of(String name) {
+        var ret = new Currency();
+        ret.name = Objects.requireNonNull(name);
+        return ret;
     }
 
     @Override

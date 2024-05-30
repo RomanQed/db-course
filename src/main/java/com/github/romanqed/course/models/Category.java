@@ -6,6 +6,8 @@ import com.github.romanqed.course.postgres.Getter;
 import com.github.romanqed.course.postgres.Setter;
 import com.github.romanqed.course.postgres.To;
 
+import java.util.Objects;
+
 @Model("categories")
 public final class Category implements Entity {
     private int id;
@@ -20,6 +22,12 @@ public final class Category implements Entity {
     public static void from(Getter getter, Category category) {
         category.id = getter.get("id", Integer.class);
         category.name = getter.get("name", String.class);
+    }
+
+    public static Category of(String name) {
+        var ret = new Category();
+        ret.name = Objects.requireNonNull(name);
+        return ret;
     }
 
     @Override

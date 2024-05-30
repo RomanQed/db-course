@@ -9,6 +9,7 @@ import com.github.romanqed.course.models.Exchange;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
+import io.javalin.http.HttpStatus;
 
 @JavalinController("/exchange")
 public final class ExchangeController extends AuthBase {
@@ -21,7 +22,13 @@ public final class ExchangeController extends AuthBase {
 
     @Route(method = HandlerType.GET, route = "/{id}")
     public void get(Context ctx) {
-
+        var id = ctx.pathParamAsClass("id", Integer.class).get();
+        var found = exchanges.get(USER_ROLE, id);
+        if (found == null) {
+            ctx.status(HttpStatus.NOT_FOUND);
+            return;
+        }
+        ctx.json(found);
     }
 
     @Route(method = HandlerType.GET)
@@ -41,6 +48,6 @@ public final class ExchangeController extends AuthBase {
 
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
-
+        Util.adminDelete(ctx, this, exchanges);
     }
 }
