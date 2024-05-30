@@ -21,6 +21,14 @@ public final class ExchangeDto implements Validated {
         this.to = to;
     }
 
+    public Double getFactor() {
+        return factor;
+    }
+
+    public void setFactor(Double factor) {
+        this.factor = factor;
+    }
+
     @Override
     public void validate() throws ValidateException {
         if (from == null && to == null) {

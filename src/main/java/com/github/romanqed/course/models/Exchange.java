@@ -28,6 +28,14 @@ public final class Exchange implements Entity {
         exchange.factor = getter.get("factor", Double.class);
     }
 
+    public static Exchange of(int from, int to, double factor) {
+        var ret = new Exchange();
+        ret.from = from;
+        ret.to = to;
+        ret.factor = factor;
+        return ret;
+    }
+
     @Override
     public int getId() {
         return id;
