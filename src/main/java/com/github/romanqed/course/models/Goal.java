@@ -7,9 +7,8 @@ import com.github.romanqed.course.postgres.Setter;
 import com.github.romanqed.course.postgres.To;
 
 @Model("goals")
-public final class Goal implements Entity {
+public final class Goal extends Owned implements Entity {
     private int id;
-    private int owner;
     private int account;
     private String description;
     private double target;
@@ -31,6 +30,14 @@ public final class Goal implements Entity {
         goal.target = getter.get("target", Double.class);
     }
 
+    public static Goal of(int owner, int account, double target) {
+        var ret = new Goal();
+        ret.owner = owner;
+        ret.account = account;
+        ret.target = target;
+        return ret;
+    }
+
     @Override
     public int getId() {
         return id;
@@ -39,14 +46,6 @@ public final class Goal implements Entity {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getOwner() {
-        return owner;
-    }
-
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 
     public int getAccount() {

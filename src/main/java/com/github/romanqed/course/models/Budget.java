@@ -9,9 +9,8 @@ import com.github.romanqed.course.postgres.To;
 import java.util.Date;
 
 @Model("budgets")
-public final class Budget implements Entity {
+public final class Budget extends Owned implements Entity {
     private int id;
-    private int owner;
     private int currency;
     private Date start;
     private Date end;
@@ -39,6 +38,14 @@ public final class Budget implements Entity {
         budget.value = getter.get("value", Double.class);
     }
 
+    public static Budget of(int owner, int currency, double value) {
+        var ret = new Budget();
+        ret.owner = owner;
+        ret.currency = currency;
+        ret.value = value;
+        return ret;
+    }
+
     @Override
     public int getId() {
         return id;
@@ -47,14 +54,6 @@ public final class Budget implements Entity {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getOwner() {
-        return owner;
-    }
-
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 
     public int getCurrency() {

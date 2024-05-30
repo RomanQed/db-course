@@ -7,9 +7,8 @@ import com.github.romanqed.course.postgres.Setter;
 import com.github.romanqed.course.postgres.To;
 
 @Model("accounts")
-public final class Account implements Entity {
+public final class Account extends Owned implements Entity {
     private int id;
-    private int owner;
     private int currency;
     private String description;
     private double value;
@@ -31,6 +30,14 @@ public final class Account implements Entity {
         account.value = getter.get("value", Double.class);
     }
 
+    public static Account of(int owner, int currency, double value) {
+        var ret = new Account();
+        ret.owner = owner;
+        ret.currency = currency;
+        ret.value = value;
+        return ret;
+    }
+
     @Override
     public int getId() {
         return id;
@@ -39,14 +46,6 @@ public final class Account implements Entity {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getOwner() {
-        return owner;
-    }
-
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 
     public int getCurrency() {

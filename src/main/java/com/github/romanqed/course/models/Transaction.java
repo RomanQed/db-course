@@ -9,9 +9,8 @@ import com.github.romanqed.course.postgres.To;
 import java.util.Date;
 
 @Model("transactions")
-public final class Transaction implements Entity {
+public final class Transaction extends Owned implements Entity {
     private int id;
-    private int owner;
     private int category;
     private Integer from; // account
     private Integer to; // account
@@ -42,6 +41,15 @@ public final class Transaction implements Entity {
         transaction.timestamp = getter.get("_timestamp", Date.class);
     }
 
+    public static Transaction of(int owner, int category, double value) {
+        var ret = new Transaction();
+        ret.owner = owner;
+        ret.category = category;
+        ret.value = value;
+        ret.timestamp = new Date();
+        return ret;
+    }
+
     @Override
     public int getId() {
         return id;
@@ -50,14 +58,6 @@ public final class Transaction implements Entity {
     @Override
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getOwner() {
-        return owner;
-    }
-
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 
     public int getCategory() {
