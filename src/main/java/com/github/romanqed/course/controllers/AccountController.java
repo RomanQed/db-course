@@ -21,21 +21,21 @@ public final class AccountController extends AuthBase {
 
     @Route(method = HandlerType.GET, route = "/{id}")
     public void get(Context ctx) {
-
+        // Получение по id
     }
 
     @Route(method = HandlerType.PUT)
     public void put(Context ctx) {
-
+        // Дефолт пуш
     }
 
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
-
+        // Обновить можно только описание и валюту, значение обновляется через транзакции
     }
 
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
-
+        // Удаление по id
     }
 }
