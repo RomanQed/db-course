@@ -33,8 +33,7 @@ public final class JavalinServiceConsumer implements ServiceProviderConsumer {
         builder.addService(ServerConfig.class, () -> config);
         var javalin = Javalin.create(e ->
                 e.bundledPlugins.enableCors(cors ->
-                        cors.addRule(CorsPluginConfig.CorsRule::anyHost
-                        )
+                        cors.addRule(CorsPluginConfig.CorsRule::anyHost)
                 )
         );
         javalin.after(new CorsHandler());

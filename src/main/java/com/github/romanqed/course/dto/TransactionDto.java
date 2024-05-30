@@ -1,5 +1,7 @@
 package com.github.romanqed.course.dto;
 
+import java.util.Objects;
+
 public final class TransactionDto implements Validated {
     private Integer category;
     private Integer from; // account
@@ -52,7 +54,7 @@ public final class TransactionDto implements Validated {
         if (category == null) {
             throw new ValidateException("Invalid category");
         }
-        if (from == null && to == null) {
+        if ((from == null && to == null) || Objects.equals(from, to)) {
             throw new ValidateException("Invalid source and target");
         }
         if (value == null || value == 0) {

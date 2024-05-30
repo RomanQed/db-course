@@ -13,6 +13,8 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 
+import java.util.List;
+
 @JavalinController("/exchange")
 public final class ExchangeController extends AuthBase {
     private final Repository<Exchange> exchanges;
@@ -64,9 +66,11 @@ public final class ExchangeController extends AuthBase {
         if (!checkAdmin(ctx)) {
             return;
         }
-        var exchange = Exchange.of(dto.getFrom(), dto.getTo(), dto.getFactor());
-        exchanges.put(ADMIN_ROLE, exchange);
-        ctx.json(exchange);
+        var first = Exchange.of(dto.getFrom(), dto.getTo(), dto.getFactor());
+        var second = Exchange.of(dto.getTo(), dto.getFrom(), 1 / dto.getFactor());
+        exchanges.put(ADMIN_ROLE, first);
+        exchanges.put(ADMIN_ROLE, second);
+        ctx.json(List.of(first, second));
     }
 
     @Route(method = HandlerType.PATCH, route = "/{id}")

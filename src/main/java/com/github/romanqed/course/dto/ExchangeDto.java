@@ -1,5 +1,7 @@
 package com.github.romanqed.course.dto;
 
+import java.util.Objects;
+
 public final class ExchangeDto implements Validated {
     private Integer from;
     private Integer to;
@@ -31,7 +33,7 @@ public final class ExchangeDto implements Validated {
 
     @Override
     public void validate() throws ValidateException {
-        if (from == null && to == null) {
+        if ((from == null && to == null) || Objects.equals(from, to)) {
             throw new ValidateException("Invalid exchange accounts");
         }
         if (factor == null) {

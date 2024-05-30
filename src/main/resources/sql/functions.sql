@@ -13,13 +13,12 @@ returns bool as $$
 declare
 e text;
 begin
-	foreach
-e in array tbls
+	foreach e in array tbls
 	loop
 		if not check_table_exists(e) then
 			return false;
-end if;
-end loop;
+        end if;
+    end loop;
 return true;
 end;
 $$

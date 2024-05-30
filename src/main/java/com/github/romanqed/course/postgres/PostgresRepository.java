@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 final class PostgresRepository<V extends Entity> implements Repository<V> {
-    private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+    private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Connection connection;
     private final String table;
     private final Supplier<V> supplier;

@@ -36,7 +36,7 @@ public final class UserController extends AuthBase {
         this.encoder = encoder;
     }
 
-    @Route(method = HandlerType.GET)
+    @Route(method = HandlerType.GET, route = "/")
     public void getSelf(Context ctx) {
         var user = getCheckedUser(ctx);
         if (user == null) {
@@ -76,7 +76,7 @@ public final class UserController extends AuthBase {
         return false;
     }
 
-    @Route(method = HandlerType.PATCH)
+    @Route(method = HandlerType.PATCH, route = "/")
     public void updateSelf(Context ctx) {
         var credentials = DtoUtil.parse(ctx, Credentials.class);
         if (credentials == null) {
@@ -122,15 +122,6 @@ public final class UserController extends AuthBase {
         ctx.status(HttpStatus.OK);
     }
 
-    private void listSelf(Context ctx, Repository<?> repo) {
-        var user = getCheckedUser(ctx);
-        if (user == null) {
-            return;
-        }
-        var found = repo.get(USER_ROLE, "owner", user.getId());
-        ctx.json(found);
-    }
-
     private void list(Context ctx, Repository<?> repo) {
         var user = getCheckedUser(ctx);
         if (user == null) {
@@ -141,13 +132,12 @@ public final class UserController extends AuthBase {
             ctx.status(HttpStatus.FORBIDDEN);
             return;
         }
+        if (!users.exists(USER_ROLE, id)) {
+            ctx.status(HttpStatus.NOT_FOUND);
+            return;
+        }
         var found = repo.get(USER_ROLE, "owner", id);
         ctx.json(found);
-    }
-
-    @Route(method = HandlerType.GET, route = "/accounts")
-    public void listSelfAccounts(Context ctx) {
-        listSelf(ctx, accounts);
     }
 
     @Route(method = HandlerType.GET, route = "/{id}/accounts")
@@ -155,29 +145,14 @@ public final class UserController extends AuthBase {
         list(ctx, accounts);
     }
 
-    @Route(method = HandlerType.GET, route = "/budgets")
-    public void listSelfBudgets(Context ctx) {
-        listSelf(ctx, budgets);
-    }
-
     @Route(method = HandlerType.GET, route = "/{id}/budgets")
     public void listBudgets(Context ctx) {
         list(ctx, budgets);
     }
 
-    @Route(method = HandlerType.GET, route = "/transactions")
-    public void listSelfTransactions(Context ctx) {
-        listSelf(ctx, transactions);
-    }
-
     @Route(method = HandlerType.GET, route = "/{id}/transactions")
     public void listTransactions(Context ctx) {
         list(ctx, transactions);
-    }
-
-    @Route(method = HandlerType.GET, route = "/goals")
-    public void listSelfGoals(Context ctx) {
-        listSelf(ctx, goals);
     }
 
     @Route(method = HandlerType.GET, route = "/{id}/goals")

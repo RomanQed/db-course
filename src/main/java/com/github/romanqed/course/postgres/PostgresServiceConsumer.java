@@ -115,6 +115,7 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
             config.setUrl(url + "/");
         }
         var connection = initDatabase(config);
+        builder.addService(Connection.class, () -> connection);
         var found = ClassIndex.getAnnotated(Model.class);
         var database = new PostgresDatabase(connection);
         builder.addService(Database.class, () -> database);
