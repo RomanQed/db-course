@@ -2,6 +2,7 @@ package com.github.romanqed.course.controllers;
 
 import com.github.romanqed.course.database.Repository;
 import com.github.romanqed.course.dto.BudgetDto;
+import com.github.romanqed.course.dto.BudgetStatus;
 import com.github.romanqed.course.dto.DtoUtil;
 import com.github.romanqed.course.javalin.JavalinController;
 import com.github.romanqed.course.javalin.Route;
@@ -13,24 +14,58 @@ import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import org.postgresql.util.PGobject;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Objects;
 
 @JavalinController("/budget")
 public final class BudgetController extends AuthBase {
+    private final Connection connection;
     private final Repository<Budget> budgets;
     private final Repository<Currency> currencies;
 
     public BudgetController(JwtProvider<JwtUser> provider,
+                            Connection connection,
                             Repository<User> users,
                             Repository<Budget> budgets,
                             Repository<Currency> currencies) {
         super(provider, users);
+        this.connection = connection;
         this.budgets = budgets;
         this.currencies = currencies;
     }
 
-    // TODO Implement status or calc
+    private BudgetStatus get(int id, int user) throws SQLException {
+        var sql = String.format("select get_budget_status(%d, %d)", id, user);
+        var statement = connection.createStatement();
+        var set = statement.executeQuery(sql);
+        if (!set.next()) {
+            throw new IllegalStateException("Cannot retrieve budget status");
+        }
+        var value = set.getObject(1, PGobject.class).getValue();
+        if (value == null) {
+            throw new IllegalStateException("Invalid postgresql response");
+        }
+        var raw = value.substring(1, value.length() - 1).split(",");
+        var ret = new BudgetStatus();
+        ret.setSpent(Double.parseDouble(raw[0]));
+        ret.setGot(Double.parseDouble(raw[1]));
+        ret.setTotal(Double.parseDouble(raw[2]));
+        return ret;
+    }
+
+    @Route(method = HandlerType.GET, route = "/{id}/status")
+    public void status(Context ctx) throws SQLException {
+        int id = ctx.pathParamAsClass("id", Integer.class).get();
+        var found = Util.seeOwned(ctx, this, budgets, id);
+        if (found == null) {
+            return;
+        }
+        var status = get(id, found.getOwner());
+        ctx.json(status);
+    }
 
     @Route(method = HandlerType.GET, route = "/{id}")
     public void get(Context ctx) {

@@ -57,8 +57,8 @@ public final class TransactionDto implements Validated {
         if ((from == null && to == null) || Objects.equals(from, to)) {
             throw new ValidateException("Invalid source and target");
         }
-        if (value == null || value == 0) {
-            throw new ValidateException("Zero transaction");
+        if (value == null || value <= 0) {
+            throw new ValidateException("Zero/negative transaction");
         }
     }
 }
