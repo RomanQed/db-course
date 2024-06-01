@@ -8,18 +8,46 @@ import com.github.romanqed.course.javalin.Route;
 import com.github.romanqed.course.jwt.JwtProvider;
 import com.github.romanqed.course.jwt.JwtUser;
 import com.github.romanqed.course.models.Category;
+import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 
+import java.util.Date;
+
 @JavalinController("/category")
 public final class CategoryController extends AuthBase {
     private final Repository<Category> categories;
+    private final Repository<Transaction> transactions;
 
-    public CategoryController(JwtProvider<JwtUser> provider, Repository<User> users, Repository<Category> categories) {
+    public CategoryController(JwtProvider<JwtUser> provider,
+                              Repository<User> users,
+                              Repository<Category> categories,
+                              Repository<Transaction> transactions) {
         super(provider, users);
         this.categories = categories;
+        this.transactions = transactions;
+    }
+
+    @Route(method = HandlerType.GET, route = "/{id}/transactions")
+    public void listTransactions(Context ctx) {
+        var id = ctx.pathParamAsClass("id", Integer.class).get();
+        var user = getCheckedUser(ctx);
+        if (user == null) {
+            return;
+        }
+        var found = categories.get(USER_ROLE, id);
+        if (found == null) {
+            ctx.status(HttpStatus.NOT_FOUND);
+            return;
+        }
+        // Get date range from query params
+        var from = ctx.queryParamAsClass("from", Date.class).getOrDefault(null);
+        var to = ctx.queryParamAsClass("to", Date.class).getOrDefault(null);
+        System.out.println(from);
+        System.out.println(to);
+        // TODO Implement getting transaction list by category
     }
 
     @Route(method = HandlerType.GET, route = "/{id}")
