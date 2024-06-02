@@ -1,7 +1,8 @@
-from typing import List, Set
+from typing import Set
 
 import registry
 from client.HttpRequest import HttpMethod
+from client.HttpResponse import HttpResponse
 from manager.ICommand import ICommand
 
 
@@ -24,6 +25,12 @@ class Login(ICommand):
     def get_body_params(self) -> Set[str]:
         return {'login', 'password'}
 
+    def after(self, response: HttpResponse):
+        if response.get_status() != 200:
+            return
+        with open('token.txt', 'w') as token_file:
+            token_file.write(response.get_body().get('token'))
+
 
 class Register(ICommand):
     def get_name(self) -> str:
@@ -37,3 +44,9 @@ class Register(ICommand):
 
     def get_body_params(self) -> Set[str]:
         return {'login', 'password'}
+
+    def after(self, response: HttpResponse):
+        if response.get_status() != 200:
+            return
+        with open('token.txt', 'w') as token_file:
+            token_file.write(response.get_body().get('token'))

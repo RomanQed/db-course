@@ -1,6 +1,7 @@
 from typing import Set
 
 from client.HttpRequest import HttpMethod
+from client.HttpResponse import HttpResponse
 
 
 class ICommand:
@@ -24,3 +25,6 @@ class ICommand:
 
     def get_url(self) -> str:
         raise NotImplementedError
+
+    def after(self, response: HttpResponse):
+        pass

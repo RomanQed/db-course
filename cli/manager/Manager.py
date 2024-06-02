@@ -77,5 +77,7 @@ class Manager:
             request.set_body(body)
         # Do request
         response = self._client.send(request)
+        # Run after hook
+        command.after(response)
         self._printer(response)
         return response.get_status() == 200
