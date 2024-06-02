@@ -14,10 +14,14 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @JavalinController("/category")
 public final class CategoryController extends AuthBase {
+    private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Repository<Category> categories;
     private final Repository<Transaction> transactions;
 
@@ -28,6 +32,25 @@ public final class CategoryController extends AuthBase {
         super(provider, users);
         this.categories = categories;
         this.transactions = transactions;
+    }
+
+    private Range parseRange(Context ctx) {
+        var rawFrom = ctx.queryParam("from");
+        var rawTo = ctx.queryParam("to");
+        var from = (Date) null;
+        var to = (Date) null;
+        try {
+            if (rawFrom != null) {
+                from = FORMATTER.parse(rawFrom);
+            }
+            if (rawTo != null) {
+                to = FORMATTER.parse(rawTo);
+            }
+        } catch (ParseException e) {
+            ctx.status(HttpStatus.BAD_REQUEST);
+            return null;
+        }
+        return new Range(from, to);
     }
 
     @Route(method = HandlerType.GET, route = "/{id}/transactions")
@@ -43,11 +66,22 @@ public final class CategoryController extends AuthBase {
             return;
         }
         // Get date range from query params
-        var from = ctx.queryParamAsClass("from", Date.class).getOrDefault(null);
-        var to = ctx.queryParamAsClass("to", Date.class).getOrDefault(null);
-        System.out.println(from);
-        System.out.println(to);
-        // TODO Implement getting transaction list by category
+        var range = parseRange(ctx);
+        if (range == null) {
+            return;
+        }
+        var where = "owner = " + user.getId() + " ";
+        var from = range.getFrom() == null ? null : "'" + FORMATTER.format(range.getFrom()) + "'";
+        var to = range.getTo() == null ? null : "'" + FORMATTER.format(range.getTo()) + "'";
+        if (from != null && to != null) {
+            where += "and (_timestamp between " + from + " and " + to + ")";
+        } else if (from != null) {
+            where += "and _timestamp > " + from;
+        } else if (to != null) {
+            where += "and _timestamp < " + to;
+        }
+        var result = transactions.get(USER_ROLE, where);
+        ctx.json(result);
     }
 
     @Route(method = HandlerType.GET, route = "/{id}")
