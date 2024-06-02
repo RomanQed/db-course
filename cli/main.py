@@ -8,6 +8,26 @@ from manager.Manager import Manager
 from manager.ManagerBuilder import ManagerBuilder
 from req.RequestsHttpClient import RequestsHttpClient
 
+import commands.auth
+import commands.account
+import commands.budget
+import commands.category
+import commands.currency
+import commands.exchange
+import commands.goal
+import commands.transaction
+import commands.user
+
+commands.auth.register()
+commands.account.register()
+commands.budget.register()
+commands.category.register()
+commands.currency.register()
+commands.exchange.register()
+commands.goal.register()
+commands.transaction.register()
+commands.user.register()
+
 
 def print_dict(e):
     for k, v in e.items():
