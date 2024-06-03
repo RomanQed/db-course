@@ -7,6 +7,7 @@ import com.github.romanqed.course.javalin.JavalinController;
 import com.github.romanqed.course.javalin.Route;
 import com.github.romanqed.course.jwt.JwtProvider;
 import com.github.romanqed.course.jwt.JwtUser;
+import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.Exchange;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
@@ -18,10 +19,15 @@ import java.util.List;
 @JavalinController("/exchange")
 public final class ExchangeController extends AuthBase {
     private final Repository<Exchange> exchanges;
+    private final Repository<Currency> currencies;
 
-    public ExchangeController(JwtProvider<JwtUser> provider, Repository<User> users, Repository<Exchange> exchanges) {
+    public ExchangeController(JwtProvider<JwtUser> provider,
+                              Repository<User> users,
+                              Repository<Exchange> exchanges,
+                              Repository<Currency> currencies) {
         super(provider, users);
         this.exchanges = exchanges;
+        this.currencies = currencies;
     }
 
     @Route(method = HandlerType.GET, route = "/{id}")
@@ -66,8 +72,22 @@ public final class ExchangeController extends AuthBase {
         if (!checkAdmin(ctx)) {
             return;
         }
-        var first = Exchange.of(dto.getFrom(), dto.getTo(), dto.getFactor());
-        var second = Exchange.of(dto.getTo(), dto.getFrom(), 1 / dto.getFactor());
+        var from = dto.getFrom();
+        var to = dto.getTo();
+        if (!currencies.exists(ADMIN_ROLE, from) || !currencies.exists(ADMIN_ROLE, to)) {
+            ctx.status(HttpStatus.NOT_FOUND);
+            return;
+        }
+        if (exchanges.exists(ADMIN_ROLE, "_from = " + from + " and _to = " + to)) {
+            ctx.status(HttpStatus.CONFLICT);
+            return;
+        }
+        if (exchanges.exists(ADMIN_ROLE, "_from = " + to + " and _to = " + from)) {
+            ctx.status(HttpStatus.CONFLICT);
+            return;
+        }
+        var first = Exchange.of(from, to, dto.getFactor());
+        var second = Exchange.of(to, from, 1 / dto.getFactor());
         exchanges.put(ADMIN_ROLE, first);
         exchanges.put(ADMIN_ROLE, second);
         ctx.json(List.of(first, second));
