@@ -8,7 +8,6 @@ grant all privileges on currencies to _service;
 grant all privileges on exchanges to _service;
 grant all privileges on categories to _service;
 grant all privileges on users to _service;
-grant all privileges on users to _service;
 grant all privileges on budgets to _service;
 grant all privileges on accounts to _service;
 grant all privileges on goals to _service;
