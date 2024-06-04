@@ -50,8 +50,8 @@ public final class Benchmark {
         destroy(connection);
     }
 
-    private static final int LIMIT = 1_000_000;
-    private static final int STEP = 100_000;
+    private static final int LIMIT = 10_000_000;
+    private static final int STEP = 1_000_000;
 
     static void measure(Connection connection, boolean parts) throws Throwable {
         var stream = new FileOutputStream("res_parts_" + parts + ".csv");
