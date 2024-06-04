@@ -7,6 +7,7 @@ import java.util.List;
 final class TransactionUtil {
     static final int RUBLES = 1;
     static final int DOLLARS = 2;
+
     private TransactionUtil() {
     }
 

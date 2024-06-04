@@ -15,10 +15,10 @@ import static com.github.romanqed.course.TransactionUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class BudgetTest {
-    static Connection connection;
     private static final Date DATE = getDate(1, 3);
     private static final Date START = getDate(1, 1);
     private static final Date END = getDate(31, 12);
+    static Connection connection;
 
     @BeforeAll
     public static void initDatabase() throws Throwable {
@@ -50,6 +50,14 @@ public final class BudgetTest {
         Util.dropDatabase("budget_test");
     }
 
+    private static Date getDate(int day, int month) {
+        var calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 2024);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        return calendar.getTime();
+    }
+
     private double convertValue(int from, int to, double value) throws Throwable {
         var ret = new double[1];
         Util.query(connection::prepareCall,
@@ -71,19 +79,11 @@ public final class BudgetTest {
         assertEquals(1, convertValue(RUBLES, DOLLARS, 100));
     }
 
-    private static Date getDate(int day, int month) {
-        var calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2024);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, day);
-        return calendar.getTime();
-    }
-
     private String getBudgetStatus(int id) throws Throwable {
         var ret = new String[1];
         Util.query(connection::prepareCall,
                 "select get_budget_status(?,?)",
-                List.of(id,1),
+                List.of(id, 1),
                 set -> ret[0] = ((PGobject) set.getObject(1)).getValue());
         return ret[0];
     }

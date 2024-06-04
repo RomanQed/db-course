@@ -14,6 +14,7 @@ final class Util {
     static final String BUDGETS = "/budget_tools.sql";
     static final String GOALS = "/goal_tools.sql";
     static final String TRANSACTIONS = "/transaction_tools.sql";
+    static final String CHECKS = "/check_tools.sql";
     static final String TABLES = "/tables.sql";
     static final String USER = "postgres";
     static final String PASSWORD = "123";

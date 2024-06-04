@@ -25,7 +25,7 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
     private static final File POSTGRES_CONFIG = new File("postgres.json");
     private static final String SERVICE_DATABASE = "postgres";
     private static final Class<?> CLASS = PostgresServiceConsumer.class;
-    private static final String FUNCTIONS = "/sql/functions.sql";
+    private static final String CHECK_TOOLS = "/sql/check_tools.sql";
     private static final String TABLES = "/sql/tables.sql";
     private static final String ROLES = "/sql/roles.sql";
     private static final String CHECK = "/sql/check.sql";
@@ -93,7 +93,7 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
         // Connect to database
         var ret = DriverManager.getConnection(config.getUrl() + database, config.getUser(), config.getPassword());
         // Create functions
-        executeSql(ret, readResource(FUNCTIONS));
+        executeSql(ret, readResource(CHECK_TOOLS));
         // Create tables
         executeSql(ret, readResource(TABLES));
         // Create roles
