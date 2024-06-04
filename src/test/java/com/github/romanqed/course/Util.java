@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 final class Util {
-    private static final Class<?> CLASS = Util.class;
     static final String BUDGETS = "/budget_tools.sql";
     static final String GOALS = "/goal_tools.sql";
     static final String TRANSACTIONS = "/transaction_tools.sql";
@@ -19,6 +18,7 @@ final class Util {
     static final String USER = "postgres";
     static final String PASSWORD = "123";
     static final String URL = "jdbc:postgresql://localhost:5432";
+    private static final Class<?> CLASS = Util.class;
 
     private Util() {
     }
@@ -51,9 +51,9 @@ final class Util {
     }
 
     static void query(Function1<String, PreparedStatement> f,
-                    String sql,
-                    List<Object> args,
-                    Runnable1<ResultSet> consumer) throws Throwable {
+                      String sql,
+                      List<Object> args,
+                      Runnable1<ResultSet> consumer) throws Throwable {
         var statement = f.invoke(sql);
         var i = 1;
         for (var arg : args) {
