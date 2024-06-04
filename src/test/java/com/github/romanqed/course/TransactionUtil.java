@@ -4,14 +4,14 @@ import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-final class TransactionUtil {
-    static final int RUBLES = 1;
-    static final int DOLLARS = 2;
+public final class TransactionUtil {
+    public static final int RUBLES = 1;
+    public static final int DOLLARS = 2;
 
     private TransactionUtil() {
     }
 
-    static void init(Connection c) throws Throwable {
+    public static void init(Connection c) throws Throwable {
         // Insert test category
         Util.update(c::prepareStatement, "insert into categories (name) values (?)", List.of("test"));
         // Insert test currencies and exchange for it
@@ -29,7 +29,7 @@ final class TransactionUtil {
                 List.of(RUBLES, DOLLARS, 0.01));
     }
 
-    static int putTransaction(Connection c, Integer from, Integer to, double value, Date date) throws Throwable {
+    public static int putTransaction(Connection c, Integer from, Integer to, double value, Date date) throws Throwable {
         var ret = new int[1];
         var query = "select add_transaction(?,?,%from,%to,?,?,?)";
         Util.query(c::prepareCall,
@@ -41,11 +41,11 @@ final class TransactionUtil {
         return ret[0];
     }
 
-    static int putTransaction(Connection c, Integer from, Integer to, double value) throws Throwable {
+    public static int putTransaction(Connection c, Integer from, Integer to, double value) throws Throwable {
         return putTransaction(c, from, to, value, new Date());
     }
 
-    static double getAccountValue(Connection c, int id) throws Throwable {
+    public static double getAccountValue(Connection c, int id) throws Throwable {
         var ret = new double[1];
         Util.query(c::prepareStatement,
                 "select value from accounts where id = ?",
@@ -54,17 +54,17 @@ final class TransactionUtil {
         return ret[0];
     }
 
-    static void deleteTransaction(Connection c, int id) throws Throwable {
+    public static void deleteTransaction(Connection c, int id) throws Throwable {
         Util.update(c::prepareCall, "call del_transaction(?)", List.of(id));
     }
 
-    static void putAccount(Connection c, int id, int currency, double value) throws Throwable {
+    public static void putAccount(Connection c, int id, int currency, double value) throws Throwable {
         Util.update(c::prepareStatement,
                 "insert into accounts (id, owner, currency, description, value) values (?,?,?,?,?)",
                 List.of(id, 1, currency, "", value));
     }
 
-    static void deleteAccount(Connection c, int id) throws Throwable {
+    public static void deleteAccount(Connection c, int id) throws Throwable {
         Util.update(c::prepareStatement, "delete from accounts where id = ?", List.of(id));
     }
 }

@@ -1,5 +1,6 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
+import com.github.romanqed.course.Util;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

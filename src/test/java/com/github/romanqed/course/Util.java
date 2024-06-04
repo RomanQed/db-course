@@ -10,21 +10,21 @@ import java.sql.*;
 import java.util.Date;
 import java.util.List;
 
-final class Util {
-    static final String BUDGETS = "/budget_tools.sql";
-    static final String GOALS = "/goal_tools.sql";
-    static final String TRANSACTIONS = "/transaction_tools.sql";
-    static final String CHECKS = "/check_tools.sql";
-    static final String TABLES = "/tables.sql";
-    static final String USER = "postgres";
-    static final String PASSWORD = "123";
-    static final String URL = "jdbc:postgresql://localhost:5432";
+public final class Util {
+    public static final String BUDGETS = "/budget_tools.sql";
+    public static final String GOALS = "/goal_tools.sql";
+    public static final String TRANSACTIONS = "/transaction_tools.sql";
+    public static final String CHECKS = "/check_tools.sql";
+    public static final String TABLES = "/tables.sql";
+    public static final String USER = "postgres";
+    public static final String PASSWORD = "123";
+    public static final String URL = "jdbc:postgresql://localhost:5432";
     private static final Class<?> CLASS = Util.class;
 
     private Util() {
     }
 
-    static Connection initDatabase(String database, List<String> resources) throws Throwable {
+    public static Connection initDatabase(String database, List<String> resources) throws Throwable {
         var master = DriverManager.getConnection(URL + "/?user=" + USER + "&password=" + PASSWORD);
         execute(master, "create database " + database);
         master.close();
@@ -39,22 +39,22 @@ final class Util {
         return ret;
     }
 
-    static void dropDatabase(String database) throws SQLException {
+    public static void dropDatabase(String database) throws SQLException {
         var master = DriverManager.getConnection(URL + "/?user=postgres&password=123");
         execute(master, "drop database " + database);
         master.close();
     }
 
-    static void execute(Connection c, String sql) throws SQLException {
+    public static void execute(Connection c, String sql) throws SQLException {
         var statement = c.createStatement();
-        statement.execute(sql);
+        statement.executeUpdate(sql);
         statement.close();
     }
 
-    static void query(Function1<String, PreparedStatement> f,
-                      String sql,
-                      List<Object> args,
-                      Runnable1<ResultSet> consumer) throws Throwable {
+    public static void query(Function1<String, PreparedStatement> f,
+                             String sql,
+                             List<Object> args,
+                             Runnable1<ResultSet> consumer) throws Throwable {
         var statement = f.invoke(sql);
         var i = 1;
         for (var arg : args) {
@@ -72,7 +72,7 @@ final class Util {
         statement.close();
     }
 
-    static void update(Function1<String, PreparedStatement> f, String sql, List<Object> args) throws Throwable {
+    public static void update(Function1<String, PreparedStatement> f, String sql, List<Object> args) throws Throwable {
         var statement = f.invoke(sql);
         var i = 1;
         for (var arg : args) {
@@ -86,7 +86,7 @@ final class Util {
         statement.close();
     }
 
-    static String readResource(String name) throws IOException {
+    public static String readResource(String name) throws IOException {
         var stream = CLASS.getResourceAsStream(name);
         if (stream == null) {
             throw new IllegalStateException("Resource not found");
