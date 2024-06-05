@@ -1,7 +1,3 @@
-drop role if exists _service;
-drop role if exists _user;
-drop role if exists _admin;
-
 create role _service;
 grant all privileges on database %database to _service;
 grant all privileges on currencies to _service;
