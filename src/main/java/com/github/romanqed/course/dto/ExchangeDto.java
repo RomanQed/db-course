@@ -33,7 +33,7 @@ public final class ExchangeDto implements Validated {
 
     @Override
     public void validate() throws ValidateException {
-        if ((from == null && to == null) || Objects.equals(from, to)) {
+        if (from == null || to == null || Objects.equals(from, to)) {
             throw new ValidateException("Invalid exchange accounts");
         }
         if (factor == null || factor <= 0) {
