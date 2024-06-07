@@ -34,7 +34,7 @@ public final class GoalDto implements Validated {
         if (account == null || account < 1) {
             throw new ValidateException("Invalid account id");
         }
-        if (target == null || target < 1) {
+        if (target == null || target <= 0) {
             throw new ValidateException("Invalid target value");
         }
     }
