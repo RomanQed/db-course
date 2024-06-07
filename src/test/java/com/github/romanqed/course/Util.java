@@ -18,7 +18,7 @@ public final class Util {
     public static final String TABLES = "/tables.sql";
     public static final String USER = "postgres";
     public static final String PASSWORD = "123";
-    public static final String URL = "jdbc:postgresql://postgresdb:5432";
+    public static final String URL = "jdbc:postgresql://localhost:5432";
     private static final Class<?> CLASS = Util.class;
 
     private Util() {
