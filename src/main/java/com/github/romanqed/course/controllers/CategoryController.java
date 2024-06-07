@@ -50,6 +50,10 @@ public final class CategoryController extends AuthBase {
             ctx.status(HttpStatus.BAD_REQUEST);
             return null;
         }
+        if (from != null && to != null && to.before(from)) {
+            ctx.status(HttpStatus.BAD_REQUEST);
+            return null;
+        }
         return new Range(from, to);
     }
 
