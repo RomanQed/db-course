@@ -29,7 +29,7 @@ create table users
 create table budgets
 (
     id          serial not null primary key,
-    owner       int references currencies (id) on delete cascade not null,
+    owner       int references users (id) on delete cascade not null,
     currency    int references currencies (id) on delete cascade not null,
     _start      timestamp not null,
     _end        timestamp not null,
