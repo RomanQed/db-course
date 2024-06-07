@@ -36,8 +36,8 @@ public final class ExchangeDto implements Validated {
         if ((from == null && to == null) || Objects.equals(from, to)) {
             throw new ValidateException("Invalid exchange accounts");
         }
-        if (factor == null) {
-            throw new ValidateException("Factor must be non-null");
+        if (factor == null || factor <= 0) {
+            throw new ValidateException("Invalid factor");
         }
     }
 }
