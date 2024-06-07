@@ -7,10 +7,7 @@ import com.github.romanqed.course.javalin.JavalinController;
 import com.github.romanqed.course.javalin.Route;
 import com.github.romanqed.course.jwt.JwtProvider;
 import com.github.romanqed.course.jwt.JwtUser;
-import com.github.romanqed.course.models.Account;
-import com.github.romanqed.course.models.Currency;
-import com.github.romanqed.course.models.Transaction;
-import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.models.*;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -27,14 +24,14 @@ public final class TransactionController extends AuthBase {
 
     private final Connection connection;
     private final Repository<Transaction> transactions;
-    private final Repository<Currency> categories;
+    private final Repository<Category> categories;
     private final Repository<Account> accounts;
 
     public TransactionController(JwtProvider<JwtUser> provider,
                                  Connection connection,
                                  Repository<User> users,
                                  Repository<Transaction> transactions,
-                                 Repository<Currency> categories,
+                                 Repository<Category> categories,
                                  Repository<Account> accounts) {
         super(provider, users);
         this.connection = connection;

@@ -11,6 +11,7 @@ import com.github.romanqed.course.jwt.JwtUser;
 import com.github.romanqed.course.models.Budget;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.jfunc.Exceptions;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -18,6 +19,10 @@ import org.postgresql.util.PGobject;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 @JavalinController("/budget")
@@ -77,6 +82,18 @@ public final class BudgetController extends AuthBase {
         ctx.json(found);
     }
 
+    private Date nullifyTime(Date date) {
+        var raw = Calendar.getInstance();
+        raw.setTime(date);
+        var ret = Calendar.getInstance();
+        ret.setTimeInMillis(0);
+        ret.set(Calendar.HOUR_OF_DAY, 0);
+        ret.set(Calendar.YEAR, raw.get(Calendar.YEAR));
+        ret.set(Calendar.MONTH, raw.get(Calendar.MONTH));
+        ret.set(Calendar.DAY_OF_MONTH, raw.get(Calendar.DAY_OF_MONTH));
+        return ret.getTime();
+    }
+
     @Route(method = HandlerType.PUT)
     public void put(Context ctx) {
         var dto = DtoUtil.validate(ctx, BudgetDto.class);
@@ -93,8 +110,8 @@ public final class BudgetController extends AuthBase {
             return;
         }
         var budget = Budget.of(user.getId(), currency, dto.getValue());
-        budget.setStart(dto.getStart());
-        budget.setEnd(dto.getEnd());
+        budget.setStart(nullifyTime(dto.getStart()));
+        budget.setEnd(nullifyTime(dto.getEnd()));
         budget.setDescription(Objects.requireNonNullElse(dto.getDescription(), ""));
         budgets.put(USER_ROLE, budget);
         ctx.json(budget);
@@ -115,10 +132,6 @@ public final class BudgetController extends AuthBase {
             return;
         }
         if (currency != null && !currencies.exists(USER_ROLE, currency)) {
-            ctx.status(HttpStatus.NOT_FOUND);
-            return;
-        }
-        if (value != null && value < 1) {
             ctx.status(HttpStatus.NOT_FOUND);
             return;
         }

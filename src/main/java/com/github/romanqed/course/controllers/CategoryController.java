@@ -22,6 +22,7 @@ import java.util.Date;
 @JavalinController("/category")
 public final class CategoryController extends AuthBase {
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateFormat INPUT = new SimpleDateFormat("yyyy-MM-dd");
     private final Repository<Category> categories;
     private final Repository<Transaction> transactions;
 
@@ -41,10 +42,10 @@ public final class CategoryController extends AuthBase {
         var to = (Date) null;
         try {
             if (rawFrom != null) {
-                from = FORMATTER.parse(rawFrom);
+                from = INPUT.parse(rawFrom);
             }
             if (rawTo != null) {
-                to = FORMATTER.parse(rawTo);
+                to = INPUT.parse(rawTo);
             }
         } catch (ParseException e) {
             ctx.status(HttpStatus.BAD_REQUEST);
@@ -74,7 +75,7 @@ public final class CategoryController extends AuthBase {
         if (range == null) {
             return;
         }
-        var where = "owner = " + user.getId() + " ";
+        var where = "category = " + id + " and owner = " + user.getId() + " ";
         var from = range.getFrom() == null ? null : "'" + FORMATTER.format(range.getFrom()) + "'";
         var to = range.getTo() == null ? null : "'" + FORMATTER.format(range.getTo()) + "'";
         if (from != null && to != null) {
@@ -106,7 +107,7 @@ public final class CategoryController extends AuthBase {
             ctx.json(categories.get(USER_ROLE));
             return;
         }
-        var found = categories.get(USER_ROLE, "name like '" + name + "'");
+        var found = categories.get(USER_ROLE, "name like '%" + name + "%'");
         ctx.json(found);
     }
 

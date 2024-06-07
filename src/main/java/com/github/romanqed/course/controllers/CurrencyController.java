@@ -40,7 +40,7 @@ public final class CurrencyController extends AuthBase {
             ctx.json(currencies.get(USER_ROLE));
             return;
         }
-        var found = currencies.get(USER_ROLE, "name like '" + name + "'");
+        var found = currencies.get(USER_ROLE, "name like '%" + name + "%'");
         ctx.json(found);
     }
 

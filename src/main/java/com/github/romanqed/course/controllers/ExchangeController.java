@@ -3,6 +3,7 @@ package com.github.romanqed.course.controllers;
 import com.github.romanqed.course.database.Repository;
 import com.github.romanqed.course.dto.DtoUtil;
 import com.github.romanqed.course.dto.ExchangeDto;
+import com.github.romanqed.course.dto.Response;
 import com.github.romanqed.course.javalin.JavalinController;
 import com.github.romanqed.course.javalin.Route;
 import com.github.romanqed.course.jwt.JwtProvider;
@@ -105,6 +106,11 @@ public final class ExchangeController extends AuthBase {
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
+        if (factor <= 0) {
+            ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.json(new Response("Invalid factor"));
+            return;
+        }
         if (!checkAdmin(ctx)) {
             return;
         }
@@ -115,11 +121,31 @@ public final class ExchangeController extends AuthBase {
         }
         found.setFactor(factor);
         exchanges.update(ADMIN_ROLE, found);
+        var second = exchanges.get(ADMIN_ROLE, "_from = " + found.getTo() + " and _to = " + found.getFrom());
+        if (!second.isEmpty()) {
+            var e = second.get(0);
+            e.setFactor(1 / factor);
+            exchanges.update(ADMIN_ROLE, e);
+        }
         ctx.status(HttpStatus.OK);
     }
 
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
-        Util.adminDelete(ctx, this, exchanges);
+        int id = ctx.pathParamAsClass("id", Integer.class).get();
+        var first = exchanges.get(ADMIN_ROLE, id);
+        if (first == null) {
+            ctx.status(HttpStatus.NOT_FOUND);
+            return;
+        }
+        if (!checkAdmin(ctx)) {
+            return;
+        }
+        exchanges.delete(ADMIN_ROLE, id);
+        var second = exchanges.get(ADMIN_ROLE, "_from = " + first.getTo() + " and _to = " + first.getFrom());
+        if (!second.isEmpty()) {
+            exchanges.delete(ADMIN_ROLE, second.get(0).getId());
+        }
+        ctx.status(HttpStatus.OK);
     }
 }

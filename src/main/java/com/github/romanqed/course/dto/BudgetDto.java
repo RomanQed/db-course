@@ -54,7 +54,7 @@ public final class BudgetDto implements Validated {
         if (currency == null || currency < 1) {
             throw new ValidateException("Invalid currency id");
         }
-        if (start == null || end == null || end.before(start)) {
+        if (start == null || end == null || start.equals(end) || end.before(start)) {
             throw new ValidateException("Invalid time ranges");
         }
         if (value == null || value < 0) {

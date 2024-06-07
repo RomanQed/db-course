@@ -112,7 +112,7 @@ public final class GoalController extends AuthBase {
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
-        if (target != null && target < 1) {
+        if (target != null && target <= 0) {
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
