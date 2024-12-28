@@ -35,7 +35,7 @@ final class ContextBuilder {
     }
 
     private static Validator createValidator(Object val, Class<?> cl) {
-        return new Validator<>(new Params<>("", (Class<Object>) cl, "", val, () -> null));
+        return new Validator<>(new Params<>("", (Class<Object>) cl, val.toString(), val, () -> val));
     }
 
     ContextBuilder withPath(String s, Object v) {
