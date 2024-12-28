@@ -16,56 +16,6 @@ final class MockUtil {
     private MockUtil() {
     }
 
-    static Validator createValidator(Object val, Class<?> cl) {
-        return new Validator<>(new Params<>("", (Class<Object>) cl, "", val, () -> null));
-    }
-
-    static ContextWrapper mockContext() {
-        var mock = Mockito.mock(Context.class);
-        var ret = new ContextWrapper(mock);
-        Mockito.doAnswer(inv -> {
-            ret.status = inv.getArgument(0);
-            return inv.getMock();
-        }).when(mock).status(Mockito.any());
-        Mockito.doAnswer(inv -> {
-            ret.body = inv.getArgument(0);
-            return inv.getMock();
-        }).when(mock).json(Mockito.any());
-        return ret;
-    }
-
-    static ContextWrapper mockContext(boolean auth, Map<String, Object> paths, Map<String, Object> queries, Object body) {
-        var ret = mockContext();
-        var mock = ret.mock;
-        if (auth) {
-            Mockito.when(mock.header("Authorization")).thenReturn("Bearer mock");
-        }
-        for (var entry : paths.entrySet()) {
-            var value = entry.getValue();
-            if (value.getClass() == String.class) {
-                Mockito.when(mock.pathParam(entry.getKey())).thenReturn((String) value);
-            } else {
-                Mockito
-                        .when(mock.pathParamAsClass(entry.getKey(), value.getClass()))
-                        .thenReturn(createValidator(value, value.getClass()));
-            }
-        }
-        for (var entry : queries.entrySet()) {
-            var value = entry.getValue();
-            if (value.getClass() == String.class) {
-                Mockito.when(mock.queryParam(entry.getKey())).thenReturn((String) value);
-            } else {
-                Mockito
-                        .when(mock.queryParamAsClass(entry.getKey(), value.getClass()))
-                        .thenReturn(createValidator(value, value.getClass()));
-            }
-        }
-        if (body != null) {
-            Mockito.when(mock.bodyAsClass((Class) body.getClass())).thenReturn(body);
-        }
-        return ret;
-    }
-
     static JwtProvider<JwtUser> mockProvider(int userId) {
         var id = Mockito.mock(Claim.class);
         Mockito.when(id.asInt()).thenReturn(userId);

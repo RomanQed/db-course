@@ -6,7 +6,6 @@ import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.HttpStatus;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,10 +34,11 @@ public final class AuthControllerTest {
         };
         var ct = new AuthController(users, jwt, new EncoderImpl());
         var creds = new Credentials();
-        var ctx = MockUtil.mockContext();
         creds.setLogin("user");
         creds.setPassword("pswd");
-        Mockito.when(ctx.mock.bodyAsClass(Credentials.class)).thenReturn(creds);
+        var ctx = CtxMockUtil.builder()
+                .withBody(creds)
+                .build();
 
         ct.register(ctx.mock);
 
@@ -57,7 +57,7 @@ public final class AuthControllerTest {
     @Test
     public void testRegisterNoBody() {
         var ct = new AuthController(null, null, null);
-        var ctx = MockUtil.mockContext();
+        var ctx = CtxMockUtil.mockContext();
 
         ct.register(ctx.mock);
 
@@ -77,11 +77,12 @@ public final class AuthControllerTest {
             }
         };
         var ct = new AuthController(users, jwt, new EncoderImpl());
-        var ctx = MockUtil.mockContext();
         var creds = new Credentials();
         creds.setLogin("log");
         creds.setPassword("pass");
-        Mockito.when(ctx.mock.bodyAsClass(Credentials.class)).thenReturn(creds);
+        var ctx = CtxMockUtil.builder()
+                .withBody(creds)
+                .build();
 
         ct.login(ctx.mock);
 
@@ -94,7 +95,7 @@ public final class AuthControllerTest {
     @Test
     public void testLoginNoBody() {
         var ct = new AuthController(null, null, null);
-        var ctx = MockUtil.mockContext();
+        var ctx = CtxMockUtil.mockContext();
 
         ct.login(ctx.mock);
 
