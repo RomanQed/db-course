@@ -18,7 +18,6 @@ public final class UserController extends AuthBase {
     private final Repository<Account> accounts;
     private final Repository<Budget> budgets;
     private final Repository<Transaction> transactions;
-    private final Repository<Goal> goals;
     private final Encoder encoder;
 
     public UserController(JwtProvider<JwtUser> provider,
@@ -26,13 +25,11 @@ public final class UserController extends AuthBase {
                           Repository<Account> accounts,
                           Repository<Budget> budgets,
                           Repository<Transaction> transactions,
-                          Repository<Goal> goals,
                           Encoder encoder) {
         super(provider, users);
         this.accounts = accounts;
         this.budgets = budgets;
         this.transactions = transactions;
-        this.goals = goals;
         this.encoder = encoder;
     }
 
@@ -153,10 +150,5 @@ public final class UserController extends AuthBase {
     @Route(method = HandlerType.GET, route = "/{id}/transactions")
     public void listTransactions(Context ctx) {
         list(ctx, transactions);
-    }
-
-    @Route(method = HandlerType.GET, route = "/{id}/goals")
-    public void listGoals(Context ctx) {
-        list(ctx, goals);
     }
 }

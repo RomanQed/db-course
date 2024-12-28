@@ -46,15 +46,6 @@ create table accounts
     value       double precision not null
 );
 
-create table goals
-(
-    id          serial not null primary key,
-    owner       int references users (id) on delete cascade not null,
-    account     int references accounts (id) on delete cascade not null,
-    description text not null,
-    target      double precision not null
-);
-
 create table transactions
 (
     id          serial not null primary key,

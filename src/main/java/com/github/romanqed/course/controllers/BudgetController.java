@@ -94,8 +94,8 @@ public final class BudgetController extends AuthBase {
         return ret.getTime();
     }
 
-    @Route(method = HandlerType.PUT)
-    public void put(Context ctx) {
+    @Route(method = HandlerType.POST)
+    public void post(Context ctx) {
         var dto = DtoUtil.validate(ctx, BudgetDto.class);
         if (dto == null) {
             return;

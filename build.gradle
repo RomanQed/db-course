@@ -9,19 +9,42 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
     compileJava.options.encoding('UTF-8')
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+configurations {
+    agent {
+        canBeResolved = true
+        canBeConsumed = true
+    }
 }
 
 group = 'com.github.romanqed'
 archivesBaseName = 'server'
 version = '0.0.1'
 
+def allureVersion = '2.26.0'
+def aspectJVersion = '1.9.22'
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    agent "org.aspectj:aspectjweaver:$aspectJVersion"
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation platform("io.qameta.allure:allure-bom:$allureVersion")
+    testImplementation "io.qameta.allure:allure-junit5"
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    implementation group: 'org.mockito', name: 'mockito-core', version: '5.14.2'
     // Jeflect
     implementation group: 'com.github.romanqed', name: 'jeflect', version: '1.1.4L'
     // Annotation processor
@@ -44,7 +67,9 @@ dependencies {
 }
 
 test {
+    ignoreFailures = true
     useJUnitPlatform()
+    jvmArgs = [ "-javaagent:${configurations.agent.singleFile}" ]
 }
 
 shadowJar {

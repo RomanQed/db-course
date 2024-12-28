@@ -44,8 +44,8 @@ public final class CurrencyController extends AuthBase {
         ctx.json(found);
     }
 
-    @Route(method = HandlerType.PUT)
-    public void put(Context ctx) {
+    @Route(method = HandlerType.POST)
+    public void post(Context ctx) {
         var dto = DtoUtil.validate(ctx, NameDto.class);
         if (dto == null) {
             return;

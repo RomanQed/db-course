@@ -40,8 +40,8 @@ public final class AccountController extends AuthBase {
         ctx.json(found);
     }
 
-    @Route(method = HandlerType.PUT)
-    public void put(Context ctx) {
+    @Route(method = HandlerType.POST)
+    public void post(Context ctx) {
         var dto = DtoUtil.validate(ctx, AccountDto.class);
         if (dto == null) {
             return;

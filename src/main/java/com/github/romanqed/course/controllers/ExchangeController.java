@@ -64,8 +64,8 @@ public final class ExchangeController extends AuthBase {
         ctx.json(exchanges.get(USER_ROLE, common));
     }
 
-    @Route(method = HandlerType.PUT)
-    public void put(Context ctx) {
+    @Route(method = HandlerType.POST)
+    public void post(Context ctx) {
         var dto = DtoUtil.validate(ctx, ExchangeDto.class);
         if (dto == null) {
             return;
