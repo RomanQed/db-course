@@ -93,6 +93,9 @@ final class ContextBuilder {
     }
 
     ContextWrapper build() {
+        if (wrapper == null) {
+            return supplier.get();
+        }
         var ret = wrapper;
         wrapper = null;
         return ret;
