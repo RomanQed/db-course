@@ -13,35 +13,55 @@ import java.util.Map;
 import java.util.Optional;
 
 final class MockUtil {
+    private MockUtil() {
+    }
 
     static Validator createValidator(Object val, Class<?> cl) {
         return new Validator<>(new Params<>("", (Class<Object>) cl, "", val, () -> null));
     }
 
-    static Context mockContext(boolean auth, Map<String, Object> paths, Map<String, Object> queries) {
-        var ret = Mockito.mock(Context.class);
+    static ContextWrapper mockContext() {
+        var mock = Mockito.mock(Context.class);
+        var ret = new ContextWrapper(mock);
+        Mockito.doAnswer(inv -> {
+            ret.status = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).status(Mockito.any());
+        Mockito.doAnswer(inv -> {
+            ret.body = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).json(Mockito.any());
+        return ret;
+    }
+
+    static ContextWrapper mockContext(boolean auth, Map<String, Object> paths, Map<String, Object> queries, Object body) {
+        var ret = mockContext();
+        var mock = ret.mock;
         if (auth) {
-            Mockito.when(ret.header("Authorization")).thenReturn("Bearer mock");
+            Mockito.when(mock.header("Authorization")).thenReturn("Bearer mock");
         }
         for (var entry : paths.entrySet()) {
             var value = entry.getValue();
             if (value.getClass() == String.class) {
-                Mockito.when(ret.pathParam(entry.getKey())).thenReturn((String) value);
+                Mockito.when(mock.pathParam(entry.getKey())).thenReturn((String) value);
             } else {
                 Mockito
-                        .when(ret.pathParamAsClass(entry.getKey(), value.getClass()))
+                        .when(mock.pathParamAsClass(entry.getKey(), value.getClass()))
                         .thenReturn(createValidator(value, value.getClass()));
             }
         }
         for (var entry : queries.entrySet()) {
             var value = entry.getValue();
             if (value.getClass() == String.class) {
-                Mockito.when(ret.queryParam(entry.getKey())).thenReturn((String) value);
+                Mockito.when(mock.queryParam(entry.getKey())).thenReturn((String) value);
             } else {
                 Mockito
-                        .when(ret.queryParamAsClass(entry.getKey(), value.getClass()))
+                        .when(mock.queryParamAsClass(entry.getKey(), value.getClass()))
                         .thenReturn(createValidator(value, value.getClass()));
             }
+        }
+        if (body != null) {
+            Mockito.when(mock.bodyAsClass((Class) body.getClass())).thenReturn(body);
         }
         return ret;
     }
