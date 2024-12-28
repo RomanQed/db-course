@@ -38,6 +38,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation 'com.h2database:h2:2.3.232'
     agent "org.aspectj:aspectjweaver:$aspectJVersion"
     testImplementation platform("org.junit:junit-bom:5.10.2")
     testImplementation platform("io.qameta.allure:allure-bom:$allureVersion")

@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
 
-final class PostgresRepository<V extends Entity> implements Repository<V> {
+public final class DbRepo<V extends Entity> implements Repository<V> {
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Connection connection;
     private final String table;
@@ -19,11 +19,11 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     private final Serializer serializer;
     private final Deserializer deserializer;
 
-    PostgresRepository(Connection connection,
-                       String table,
-                       Supplier<V> supplier,
-                       Serializer serializer,
-                       Deserializer deserializer) {
+    public DbRepo(Connection connection,
+                  String table,
+                  Supplier<V> supplier,
+                  Serializer serializer,
+                  Deserializer deserializer) {
         this.connection = connection;
         this.table = table;
         this.supplier = supplier;
@@ -46,7 +46,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     }
 
     private String prepareInsert(String role, Map<String, Object> fields) {
-        var query = "set role %s;insert into %s (%s) values (%s);";
+        var query = "insert into %s (%s) values (%s);";
         // Prepare names
         var names = fields
                 .keySet()
@@ -59,35 +59,34 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
                 .map(this::toString)
                 .reduce("", (p, n) -> p + "," + n)
                 .substring(1);
-        var sql = String.format(query, role, table, names, values);
-        return sql + String.format("select currval('%s_id_seq');", table);
+        return String.format(query, table, names, values);
     }
 
-    private int innerPut(String role, Map<String, Object> fields) throws SQLException {
+    private void innerPut(String role, Map<String, Object> fields) throws SQLException {
         var sql = prepareInsert(role, fields);
         var statement = connection.createStatement();
-        statement.execute(sql);
-        statement.getMoreResults(); // Skip set role
-        statement.getMoreResults(); // Skip update
-        var set = statement.getResultSet();
-        if (!set.next()) {
-            throw new IllegalStateException("Cannot retrieve id");
-        }
-        var ret = set.getInt(1);
+        statement.executeUpdate(sql);
         statement.close();
-        return ret;
+//        statement.getMoreResults(); // Skip set role
+//        statement.getMoreResults(); // Skip update
+//        var set = statement.getResultSet();
+//        if (!set.next()) {
+//            throw new IllegalStateException("Cannot retrieve id");
+//        }
+//        var ret = set.getInt(1);
+//        statement.close();
+//        return ret;
     }
 
     @Override
     public void put(String role, V model) {
         var fields = new HashMap<String, Object>();
         serializer.serialize(fields::put, model);
-        var id = Exceptions.suppress(() -> innerPut(role, fields));
-        model.setId(id);
+        Exceptions.suppress(() -> innerPut(role, fields));
     }
 
     private String prepareUpdate(String role, int id, Map<String, Object> fields) {
-        var ret = "set role %s;update %s set %s where id = %d;";
+        var ret = "update %s set %s where id = %d;";
         var builder = new StringBuilder();
         fields.forEach((k, v) -> builder
                 .append(',')
@@ -95,7 +94,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
                 .append('=')
                 .append(toString(v)));
         var values = builder.substring(1);
-        return String.format(ret, role, table, values, id);
+        return String.format(ret, table, values, id);
     }
 
     private void innerUpdate(String role, int id, Map<String, Object> fields) throws SQLException {
@@ -113,7 +112,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     }
 
     private String prepareGet(String role, String where) {
-        var ret = String.format("set role %s;select * from %s", role, table);
+        var ret = String.format("select * from %s", table);
         if (where != null) {
             return ret + " where " + where;
         }
@@ -123,7 +122,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     private List<V> innerGet(String sql) throws SQLException {
         var statement = connection.createStatement();
         statement.execute(sql);
-        statement.getMoreResults(); // Skip set role
+//        statement.getMoreResults(); // Skip set role
         var ret = new LinkedList<V>();
         var set = statement.getResultSet();
         while (set.next()) {
@@ -171,14 +170,14 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     }
 
     private String prepareExists(String role, String where) {
-        var ret = "set role %s;select exists(select 1 from %s where %s)";
-        return String.format(ret, role, table, where);
+        var ret = "select exists(select 1 from %s where %s)";
+        return String.format(ret, table, where);
     }
 
     private boolean innerExists(String sql) throws SQLException {
         var statement = connection.createStatement();
         statement.execute(sql);
-        statement.getMoreResults(); // Skip set role
+//        statement.getMoreResults(); // Skip set role
         var set = statement.getResultSet();
         if (!set.next()) {
             throw new IllegalStateException("Cannot retrieve exist state");
@@ -204,7 +203,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     }
 
     private String prepareDelete(String role, String where) {
-        var ret = String.format("set role %s; delete from %s", role, table);
+        var ret = String.format("delete from %s", table);
         if (where != null) {
             return ret + " where " + where;
         }

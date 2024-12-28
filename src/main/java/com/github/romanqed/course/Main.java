@@ -13,11 +13,13 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
+
 public final class Main {
     private static final String SYSTEM_ROLE = "_service";
     private static final String LOGGER_CONFIG = "log4j.properties";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         // Configure logger
         PropertyConfigurator.configure(LOGGER_CONFIG);
         // Configure DI

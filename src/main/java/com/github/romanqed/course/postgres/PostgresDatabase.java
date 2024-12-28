@@ -44,7 +44,7 @@ final class PostgresDatabase implements Database {
                 .orElseThrow();
         var serializer = FACTORY.packLambdaMethod(SERIALIZER, to);
         var deserializer = FACTORY.packLambdaMethod(DESERIALIZER, from);
-        return new PostgresRepository<>(connection, model.value(), supplier, serializer, deserializer);
+        return new DbRepo<>(connection, model.value(), supplier, serializer, deserializer);
     }
 
     @Override
