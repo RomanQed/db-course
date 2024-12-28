@@ -36,7 +36,7 @@ public final class AuthControllerTest {
         var creds = new Credentials();
         creds.setLogin("user");
         creds.setPassword("pswd");
-        var ctx = CtxMockUtil.builder()
+        var ctx = MockUtil.ctxBuilder()
                 .withBody(creds)
                 .build();
 
@@ -57,7 +57,7 @@ public final class AuthControllerTest {
     @Test
     public void testRegisterNoBody() {
         var ct = new AuthController(null, null, null);
-        var ctx = CtxMockUtil.mockContext();
+        var ctx = MockUtil.mockCtx();
 
         ct.register(ctx.mock);
 
@@ -80,7 +80,7 @@ public final class AuthControllerTest {
         var creds = new Credentials();
         creds.setLogin("log");
         creds.setPassword("pass");
-        var ctx = CtxMockUtil.builder()
+        var ctx = MockUtil.ctxBuilder()
                 .withBody(creds)
                 .build();
 
@@ -95,7 +95,7 @@ public final class AuthControllerTest {
     @Test
     public void testLoginNoBody() {
         var ct = new AuthController(null, null, null);
-        var ctx = CtxMockUtil.mockContext();
+        var ctx = MockUtil.mockCtx();
 
         ct.login(ctx.mock);
 

@@ -42,7 +42,7 @@ public final class CategoryControllerTest {
             }
         };
         var ct = new CategoryController(jwt, users, cats, trs);
-        var ctx = CtxMockUtil.builder()
+        var ctx = MockUtil.ctxBuilder()
                 .withQuery("from", "2021-01-01")
                 .withAuth()
                 .withPath("id", 2)

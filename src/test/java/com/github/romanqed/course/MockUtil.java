@@ -34,4 +34,22 @@ final class MockUtil {
             }
         };
     }
+
+    static ContextWrapper mockCtx() {
+        var mock = Mockito.mock(Context.class);
+        var ret = new ContextWrapper(mock);
+        Mockito.doAnswer(inv -> {
+            ret.status = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).status(Mockito.any());
+        Mockito.doAnswer(inv -> {
+            ret.body = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).json(Mockito.any());
+        return ret;
+    }
+
+    static ContextBuilder ctxBuilder() {
+        return new ContextBuilder(MockUtil::mockCtx);
+    }
 }
