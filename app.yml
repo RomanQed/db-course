@@ -13,13 +13,21 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: 123
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 100
 
   server:
-    build: .
+    build:
+      context: .
+      dockerfile: App.dockerfile
     restart: on-failure
     networks:
       course-network:
     ports:
       - "8080:8080"
     depends_on:
-      - postgresdb
+      postgresdb:
+        condition: service_healthy

@@ -1,0 +1,27 @@
+version: "3"
+
+networks:
+  e2en:
+
+services:
+  pdb:
+    image: postgres
+    networks:
+      e2en:
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 100
+
+  e2e:
+    build:
+      context: .
+      dockerfile: E2E.dockerfile
+    networks:
+      e2en:
+    depends_on:
+      pdb:
+        condition: service_healthy

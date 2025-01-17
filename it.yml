@@ -1,0 +1,29 @@
+version: "3"
+
+networks:
+  itn:
+
+services:
+  pdb:
+    image: postgres
+    networks:
+      itn:
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 100
+
+  its:
+    build:
+      context: .
+      dockerfile: IT.dockerfile
+    networks:
+      itn:
+    depends_on:
+      pdb:
+        condition: service_healthy
+    environment:
+      DB_CONN: jdbc:postgresql://pdb:5432

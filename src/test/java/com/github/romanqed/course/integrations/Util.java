@@ -33,28 +33,15 @@ import java.util.UUID;
 public final class Util {
     public static final String BUDGETS = "/budget_tools.sql";
     public static final String TRANSACTIONS = "/transaction_tools.sql";
-    public static final String CHECKS = "/check_tools.sql";
     public static final String TABLES = "/tables.sql";
     public static final String ROLES = "/roles.sql";
     public static final String USER = "postgres";
     public static final String PASSWORD = "postgres";
-    public static final String URL_CONFIG = "int.conn";
-    public static final String URL = readURL();
+    public static final String URL = System.getenv("DB_CONN");
     public static final String SYSTEM_ROLE = "_service";
     private static final Class<?> CLASS = Util.class;
 
     private Util() {
-    }
-
-    private static String readURL() {
-        try {
-            var reader = Files.newBufferedReader(Path.of(URL_CONFIG));
-            var ret = reader.readLine();
-            reader.close();
-            return ret;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static String getRandomDb(String base) {

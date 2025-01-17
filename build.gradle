@@ -67,7 +67,6 @@ dependencies {
 }
 
 test {
-    ignoreFailures = true
     useJUnitPlatform()
     jvmArgs = [ "-javaagent:${configurations.agent.singleFile}" ]
 }
