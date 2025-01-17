@@ -1,2 +1,3 @@
 rootProject.name = 'db-course'
+include 'e2e'
 

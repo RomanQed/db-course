@@ -6,7 +6,6 @@ select check_tables_exist(
                'users',
                'budgets',
                'accounts',
-               'goals',
                'transactions'
                    ]
        );

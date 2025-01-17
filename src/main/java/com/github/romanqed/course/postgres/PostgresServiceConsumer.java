@@ -101,7 +101,6 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
         // Create functions
         executeSql(ret, readResource(TRANSACTION_TOOLS));
         executeSql(ret, readResource(BUDGET_TOOLS));
-        executeSql(ret, readResource(GOAL_TOOLS));
         return ret;
     }
 
