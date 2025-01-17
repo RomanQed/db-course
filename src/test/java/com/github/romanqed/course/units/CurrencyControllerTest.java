@@ -1,9 +1,9 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
-import com.github.romanqed.course.controllers.CategoryController;
+import com.github.romanqed.course.MockUtil;
+import com.github.romanqed.course.controllers.CurrencyController;
 import com.github.romanqed.course.dto.NameDto;
-import com.github.romanqed.course.models.Category;
-import com.github.romanqed.course.models.Transaction;
+import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -13,89 +13,19 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public final class CategoryControllerTest {
-
-    @Test
-    public void testListTransactions() {
-        var jwt = MockUtil.mockProvider(12);
-        var users = new RepositoryImpl<User>() {
-            @Override
-            public User get(String role, int key) {
-                return User.of("usr", "ps");
-            }
-        };
-        var cats = new RepositoryImpl<Category>() {
-            @Override
-            public Category get(String role, int key) {
-                var ret = new Category();
-                ret.setId(key);
-                return ret;
-            }
-        };
-        var lst = new ArrayList<Transaction>();
-        var trs = new RepositoryImpl<Transaction>() {
-            String where;
-            @Override
-            public List<Transaction> get(String role, String where) {
-                this.where = where;
-                return lst;
-            }
-        };
-        var ct = new CategoryController(jwt, users, cats, trs);
-        var ctx = MockUtil.ctxBuilder()
-                .withQuery("from", "2021-01-01")
-                .withAuth()
-                .withPath("id", 2)
-                .build();
-
-        ct.listTransactions(ctx.mock);
-
-        assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(lst, ctx.body);
-        assertEquals("category = 2 and owner = 0 and _timestamp > '2021-01-01 00:00:00'", trs.where);
-    }
-
-    @Test
-    public void testListTransactionsWithInvalidRange() {
-        var jwt = MockUtil.mockProvider(12);
-        var users = new RepositoryImpl<User>() {
-            @Override
-            public User get(String role, int key) {
-                return User.of("usr", "ps");
-            }
-        };
-        var cats = new RepositoryImpl<Category>() {
-            @Override
-            public Category get(String role, int key) {
-                var ret = new Category();
-                ret.setId(key);
-                return ret;
-            }
-        };
-        var ct = new CategoryController(jwt, users, cats, null);
-        var ctx = MockUtil.ctxBuilder()
-                .withQuery("from", "2021-01-01")
-                .withQuery("to", "2020-01-01")
-                .withAuth()
-                .withPath("id", 2)
-                .build();
-
-        ct.listTransactions(ctx.mock);
-
-        assertEquals(HttpStatus.BAD_REQUEST, ctx.status);
-    }
+public final class CurrencyControllerTest {
 
     @Test
     public void testGet() {
-        var cats = new RepositoryImpl<Category>() {
+        var curs = new RepositoryImpl<Currency>() {
             @Override
-            public Category get(String role, int key) {
-                var ret = new Category();
+            public Currency get(String role, int key) {
+                var ret = new Currency();
                 ret.setId(key);
                 return ret;
             }
         };
-        var ct = new CategoryController(null, null, cats, null);
+        var ct = new CurrencyController(null, null, curs);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 10)
                 .build();
@@ -103,13 +33,13 @@ public final class CategoryControllerTest {
         ct.get(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(10, ((Category) ctx.body).getId());
+        assertEquals(10, ((Currency) ctx.body).getId());
     }
 
     @Test
     public void testGetNotExisting() {
-        var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(null, null, cats, null);
+        var curs = new RepositoryImpl<Currency>();
+        var ct = new CurrencyController(null, null, curs);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 10)
                 .build();
@@ -121,14 +51,14 @@ public final class CategoryControllerTest {
 
     @Test
     public void testFind() {
-        var lst = new ArrayList<Category>();
-        var cats = new RepositoryImpl<Category>() {
+        var lst = new ArrayList<Currency>();
+        var curs = new RepositoryImpl<Currency>() {
             @Override
-            public List<Category> get(String role) {
+            public List<Currency> get(String role) {
                 return lst;
             }
         };
-        var ct = new CategoryController(null, null, cats, null);
+        var ct = new CurrencyController(null, null, curs);
         var ctx = MockUtil.mockCtx();
 
         ct.find(ctx.mock);
@@ -148,16 +78,16 @@ public final class CategoryControllerTest {
                 return ret;
             }
         };
-        var cats = new RepositoryImpl<Category>() {
-            Category cat;
+        var cs = new RepositoryImpl<Currency>() {
+            Currency c;
             @Override
-            public void put(String role, Category model) {
-                cat = model;
+            public void put(String role, Currency model) {
+                c = model;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CurrencyController(jwt, users, cs);
         var dto = new NameDto();
-        dto.setName("tcat1");
+        dto.setName("tcur1");
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withAuth()
@@ -166,7 +96,7 @@ public final class CategoryControllerTest {
         ct.post(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals("tcat1", cats.cat.getName());
+        assertEquals("tcur1", cs.c.getName());
     }
 
     @Test
@@ -178,10 +108,10 @@ public final class CategoryControllerTest {
                 return new User();
             }
         };
-        var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var cs = new RepositoryImpl<Currency>();
+        var ct = new CurrencyController(jwt, users, cs);
         var dto = new NameDto();
-        dto.setName("tcat1");
+        dto.setName("tcur1");
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withAuth()
@@ -203,23 +133,23 @@ public final class CategoryControllerTest {
                 return ret;
             }
         };
-        var cats = new RepositoryImpl<Category>() {
-            Category cat;
+        var cs = new RepositoryImpl<Currency>() {
+            Currency c;
             @Override
-            public Category get(String role, int key) {
-                var ret = new Category();
+            public Currency get(String role, int key) {
+                var ret = new Currency();
                 ret.setId(key);
                 return ret;
             }
 
             @Override
-            public void update(String role, Category model) {
-                cat = model;
+            public void update(String role, Currency model) {
+                c = model;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CurrencyController(jwt, users, cs);
         var dto = new NameDto();
-        dto.setName("tcat2");
+        dto.setName("tc2");
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 13)
                 .withBody(dto)
@@ -229,8 +159,8 @@ public final class CategoryControllerTest {
         ct.update(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(13, cats.cat.getId());
-        assertEquals("tcat2", cats.cat.getName());
+        assertEquals(13, cs.c.getId());
+        assertEquals("tc2", cs.c.getName());
     }
 
     @Test
@@ -242,10 +172,10 @@ public final class CategoryControllerTest {
                 return new User();
             }
         };
-        var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var cs = new RepositoryImpl<Currency>();
+        var ct = new CurrencyController(jwt, users, cs);
         var dto = new NameDto();
-        dto.setName("tcat1");
+        dto.setName("tc1");
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 13)
                 .withBody(dto)
@@ -268,7 +198,7 @@ public final class CategoryControllerTest {
                 return ret;
             }
         };
-        var cats = new RepositoryImpl<Category>() {
+        var cs = new RepositoryImpl<Currency>() {
             int id;
 
             @Override
@@ -281,7 +211,7 @@ public final class CategoryControllerTest {
                 return id == 14;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CurrencyController(jwt, users, cs);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 14)
                 .withAuth()
@@ -290,7 +220,7 @@ public final class CategoryControllerTest {
         ct.delete(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(14, cats.id);
+        assertEquals(14, cs.id);
     }
 
     @Test
@@ -302,8 +232,8 @@ public final class CategoryControllerTest {
                 return new User();
             }
         };
-        var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var cs = new RepositoryImpl<Currency>();
+        var ct = new CurrencyController(jwt, users, cs);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 14)
                 .withAuth()

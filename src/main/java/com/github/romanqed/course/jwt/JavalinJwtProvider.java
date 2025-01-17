@@ -5,10 +5,10 @@ import javalinjwt.JWTProvider;
 
 import java.util.Optional;
 
-final class JwtProviderImpl<T> implements JwtProvider<T> {
+public final class JavalinJwtProvider<T> implements JwtProvider<T> {
     private final JWTProvider<T> provider;
 
-    JwtProviderImpl(JWTProvider<T> provider) {
+    public JavalinJwtProvider(JWTProvider<T> provider) {
         this.provider = provider;
     }
 

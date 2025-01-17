@@ -5,9 +5,10 @@ import io.javalin.validation.Validator;
 import org.mockito.Mockito;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-final class ContextBuilder {
+public final class ContextBuilder {
     final Supplier<ContextWrapper> supplier;
     ContextWrapper wrapper;
 
@@ -22,23 +23,27 @@ final class ContextBuilder {
         }
     }
 
-    ContextBuilder withBody(Object body) {
+    public ContextBuilder withBody(Object body) {
         check();
         Mockito.when(wrapper.mock.bodyAsClass((Class) body.getClass())).thenReturn(body);
         return this;
     }
 
-    ContextBuilder withAuth() {
+    public ContextBuilder withAuth() {
+        return withAuth("mock");
+    }
+
+    public ContextBuilder withAuth(String token) {
         check();
-        Mockito.when(wrapper.mock.header("Authorization")).thenReturn("Bearer mock");
+        Mockito.when(wrapper.mock.header("Authorization")).thenReturn("Bearer " + token);
         return this;
     }
 
     private static Validator createValidator(Object val, Class<?> cl) {
-        return new Validator<>(new Params<>("", (Class<Object>) cl, val.toString(), val, () -> val));
+        return new Validator<>(new Params<>("", (Class<Object>) cl, val == null ? null : val.toString(), val, () -> val));
     }
 
-    ContextBuilder withPath(String s, Object v) {
+    public ContextBuilder withPath(String s, Object v) {
         check();
         if (v.getClass() == String.class) {
             Mockito.when(wrapper.mock.pathParam(s)).thenReturn((String) v);
@@ -65,7 +70,7 @@ final class ContextBuilder {
         return this;
     }
 
-    ContextBuilder withQuery(String s, Object v) {
+    public ContextBuilder withQuery(String s, Object v) {
         check();
         if (v.getClass() == String.class) {
             Mockito.when(wrapper.mock.queryParam(s)).thenReturn((String) v);
@@ -73,6 +78,18 @@ final class ContextBuilder {
             Mockito
                     .when(wrapper.mock.queryParamAsClass(s, v.getClass()))
                     .thenReturn(createValidator(v, v.getClass()));
+        }
+        return this;
+    }
+
+    public ContextBuilder withEmptyQuery(String s, Class<?> type) {
+        check();
+        if (type == String.class) {
+            Mockito.when(wrapper.mock.queryParam(s)).thenReturn(null);
+        } else {
+            Mockito
+                    .when(wrapper.mock.queryParamAsClass(s, type))
+                    .thenReturn(createValidator(null, type));
         }
         return this;
     }
@@ -92,7 +109,7 @@ final class ContextBuilder {
         return this;
     }
 
-    ContextWrapper build() {
+    public ContextWrapper build() {
         if (wrapper == null) {
             return supplier.get();
         }

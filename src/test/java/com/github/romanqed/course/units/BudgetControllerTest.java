@@ -1,5 +1,7 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
+import com.github.romanqed.course.MockUtil;
+import com.github.romanqed.course.TimeUtil;
 import com.github.romanqed.course.controllers.BudgetController;
 import com.github.romanqed.course.dto.BudgetDto;
 import com.github.romanqed.course.dto.BudgetStatus;
@@ -14,7 +16,6 @@ import org.postgresql.util.PGobject;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,18 +168,6 @@ public final class BudgetControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, ctx.status);
     }
 
-    private static Date nullifyTime(Date date) {
-        var raw = Calendar.getInstance();
-        raw.setTime(date);
-        var ret = Calendar.getInstance();
-        ret.setTimeInMillis(0);
-        ret.set(Calendar.HOUR_OF_DAY, 0);
-        ret.set(Calendar.YEAR, raw.get(Calendar.YEAR));
-        ret.set(Calendar.MONTH, raw.get(Calendar.MONTH));
-        ret.set(Calendar.DAY_OF_MONTH, raw.get(Calendar.DAY_OF_MONTH));
-        return ret.getTime();
-    }
-
     @Test
     public void testPost() {
         var jwt = MockUtil.mockProvider(15);
@@ -209,7 +198,7 @@ public final class BudgetControllerTest {
         dto.setDescription("descr");
         dto.setCurrency(1);
         dto.setValue(151.0);
-        var start = nullifyTime(new Date());
+        var start = TimeUtil.nullifyTime(new Date());
         var end = (Date) start.clone();
         end.setYear(2030);
         dto.setStart(start);

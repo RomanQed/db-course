@@ -1,4 +1,4 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
 import com.github.romanqed.course.hash.Encoder;
 

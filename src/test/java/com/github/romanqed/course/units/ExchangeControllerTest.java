@@ -1,5 +1,6 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
+import com.github.romanqed.course.MockUtil;
 import com.github.romanqed.course.controllers.ExchangeController;
 import com.github.romanqed.course.dto.ExchangeDto;
 import com.github.romanqed.course.models.Currency;

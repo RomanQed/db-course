@@ -1,4 +1,4 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
 import java.io.InputStream;
 import java.io.Reader;

@@ -1,5 +1,6 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
+import com.github.romanqed.course.MockUtil;
 import com.github.romanqed.course.controllers.AuthController;
 import com.github.romanqed.course.dto.Credentials;
 import com.github.romanqed.course.dto.Token;

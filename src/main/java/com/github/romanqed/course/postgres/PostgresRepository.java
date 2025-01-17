@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
 
-final class PostgresRepository<V extends Entity> implements Repository<V> {
+public final class PostgresRepository<V extends Entity> implements Repository<V> {
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Connection connection;
     private final String table;
@@ -19,7 +19,7 @@ final class PostgresRepository<V extends Entity> implements Repository<V> {
     private final Serializer serializer;
     private final Deserializer deserializer;
 
-    PostgresRepository(Connection connection,
+    public PostgresRepository(Connection connection,
                        String table,
                        Supplier<V> supplier,
                        Serializer serializer,

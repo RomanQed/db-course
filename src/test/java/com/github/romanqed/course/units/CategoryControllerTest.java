@@ -1,8 +1,10 @@
-package com.github.romanqed.course;
+package com.github.romanqed.course.units;
 
-import com.github.romanqed.course.controllers.CurrencyController;
+import com.github.romanqed.course.MockUtil;
+import com.github.romanqed.course.controllers.CategoryController;
 import com.github.romanqed.course.dto.NameDto;
-import com.github.romanqed.course.models.Currency;
+import com.github.romanqed.course.models.Category;
+import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -12,19 +14,89 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public final class CurrencyControllerTest {
+public final class CategoryControllerTest {
 
     @Test
-    public void testGet() {
-        var curs = new RepositoryImpl<Currency>() {
+    public void testListTransactions() {
+        var jwt = MockUtil.mockProvider(12);
+        var users = new RepositoryImpl<User>() {
             @Override
-            public Currency get(String role, int key) {
-                var ret = new Currency();
+            public User get(String role, int key) {
+                return User.of("usr", "ps");
+            }
+        };
+        var cats = new RepositoryImpl<Category>() {
+            @Override
+            public Category get(String role, int key) {
+                var ret = new Category();
                 ret.setId(key);
                 return ret;
             }
         };
-        var ct = new CurrencyController(null, null, curs);
+        var lst = new ArrayList<Transaction>();
+        var trs = new RepositoryImpl<Transaction>() {
+            String where;
+            @Override
+            public List<Transaction> get(String role, String where) {
+                this.where = where;
+                return lst;
+            }
+        };
+        var ct = new CategoryController(jwt, users, cats, trs);
+        var ctx = MockUtil.ctxBuilder()
+                .withQuery("from", "2021-01-01")
+                .withAuth()
+                .withPath("id", 2)
+                .build();
+
+        ct.listTransactions(ctx.mock);
+
+        assertEquals(HttpStatus.OK, ctx.status);
+        assertEquals(lst, ctx.body);
+        assertEquals("category = 2 and owner = 0 and _timestamp > '2021-01-01 00:00:00'", trs.where);
+    }
+
+    @Test
+    public void testListTransactionsWithInvalidRange() {
+        var jwt = MockUtil.mockProvider(12);
+        var users = new RepositoryImpl<User>() {
+            @Override
+            public User get(String role, int key) {
+                return User.of("usr", "ps");
+            }
+        };
+        var cats = new RepositoryImpl<Category>() {
+            @Override
+            public Category get(String role, int key) {
+                var ret = new Category();
+                ret.setId(key);
+                return ret;
+            }
+        };
+        var ct = new CategoryController(jwt, users, cats, null);
+        var ctx = MockUtil.ctxBuilder()
+                .withQuery("from", "2021-01-01")
+                .withQuery("to", "2020-01-01")
+                .withAuth()
+                .withPath("id", 2)
+                .build();
+
+        ct.listTransactions(ctx.mock);
+
+        assertEquals(HttpStatus.BAD_REQUEST, ctx.status);
+    }
+
+    @Test
+    public void testGet() {
+        var cats = new RepositoryImpl<Category>() {
+            @Override
+            public Category get(String role, int key) {
+                var ret = new Category();
+                ret.setId(key);
+                return ret;
+            }
+        };
+        var ct = new CategoryController(null, null, cats, null);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 10)
                 .build();
@@ -32,13 +104,13 @@ public final class CurrencyControllerTest {
         ct.get(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(10, ((Currency) ctx.body).getId());
+        assertEquals(10, ((Category) ctx.body).getId());
     }
 
     @Test
     public void testGetNotExisting() {
-        var curs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(null, null, curs);
+        var cats = new RepositoryImpl<Category>();
+        var ct = new CategoryController(null, null, cats, null);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 10)
                 .build();
@@ -50,14 +122,14 @@ public final class CurrencyControllerTest {
 
     @Test
     public void testFind() {
-        var lst = new ArrayList<Currency>();
-        var curs = new RepositoryImpl<Currency>() {
+        var lst = new ArrayList<Category>();
+        var cats = new RepositoryImpl<Category>() {
             @Override
-            public List<Currency> get(String role) {
+            public List<Category> get(String role) {
                 return lst;
             }
         };
-        var ct = new CurrencyController(null, null, curs);
+        var ct = new CategoryController(null, null, cats, null);
         var ctx = MockUtil.mockCtx();
 
         ct.find(ctx.mock);
@@ -77,16 +149,16 @@ public final class CurrencyControllerTest {
                 return ret;
             }
         };
-        var cs = new RepositoryImpl<Currency>() {
-            Currency c;
+        var cats = new RepositoryImpl<Category>() {
+            Category cat;
             @Override
-            public void put(String role, Currency model) {
-                c = model;
+            public void put(String role, Category model) {
+                cat = model;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CategoryController(jwt, users, cats, null);
         var dto = new NameDto();
-        dto.setName("tcur1");
+        dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withAuth()
@@ -95,7 +167,7 @@ public final class CurrencyControllerTest {
         ct.post(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals("tcur1", cs.c.getName());
+        assertEquals("tcat1", cats.cat.getName());
     }
 
     @Test
@@ -107,10 +179,10 @@ public final class CurrencyControllerTest {
                 return new User();
             }
         };
-        var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var cats = new RepositoryImpl<Category>();
+        var ct = new CategoryController(jwt, users, cats, null);
         var dto = new NameDto();
-        dto.setName("tcur1");
+        dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withAuth()
@@ -132,23 +204,23 @@ public final class CurrencyControllerTest {
                 return ret;
             }
         };
-        var cs = new RepositoryImpl<Currency>() {
-            Currency c;
+        var cats = new RepositoryImpl<Category>() {
+            Category cat;
             @Override
-            public Currency get(String role, int key) {
-                var ret = new Currency();
+            public Category get(String role, int key) {
+                var ret = new Category();
                 ret.setId(key);
                 return ret;
             }
 
             @Override
-            public void update(String role, Currency model) {
-                c = model;
+            public void update(String role, Category model) {
+                cat = model;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CategoryController(jwt, users, cats, null);
         var dto = new NameDto();
-        dto.setName("tc2");
+        dto.setName("tcat2");
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 13)
                 .withBody(dto)
@@ -158,8 +230,8 @@ public final class CurrencyControllerTest {
         ct.update(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(13, cs.c.getId());
-        assertEquals("tc2", cs.c.getName());
+        assertEquals(13, cats.cat.getId());
+        assertEquals("tcat2", cats.cat.getName());
     }
 
     @Test
@@ -171,10 +243,10 @@ public final class CurrencyControllerTest {
                 return new User();
             }
         };
-        var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var cats = new RepositoryImpl<Category>();
+        var ct = new CategoryController(jwt, users, cats, null);
         var dto = new NameDto();
-        dto.setName("tc1");
+        dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 13)
                 .withBody(dto)
@@ -197,7 +269,7 @@ public final class CurrencyControllerTest {
                 return ret;
             }
         };
-        var cs = new RepositoryImpl<Currency>() {
+        var cats = new RepositoryImpl<Category>() {
             int id;
 
             @Override
@@ -210,7 +282,7 @@ public final class CurrencyControllerTest {
                 return id == 14;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CategoryController(jwt, users, cats, null);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 14)
                 .withAuth()
@@ -219,7 +291,7 @@ public final class CurrencyControllerTest {
         ct.delete(ctx.mock);
 
         assertEquals(HttpStatus.OK, ctx.status);
-        assertEquals(14, cs.id);
+        assertEquals(14, cats.id);
     }
 
     @Test
@@ -231,8 +303,8 @@ public final class CurrencyControllerTest {
                 return new User();
             }
         };
-        var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var cats = new RepositoryImpl<Category>();
+        var ct = new CategoryController(jwt, users, cats, null);
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 14)
                 .withAuth()

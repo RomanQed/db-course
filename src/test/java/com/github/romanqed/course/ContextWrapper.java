@@ -3,10 +3,10 @@ package com.github.romanqed.course;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
-final class ContextWrapper {
-    final Context mock;
-    HttpStatus status;
-    Object body;
+public final class ContextWrapper {
+    public final Context mock;
+    public HttpStatus status;
+    public Object body;
 
     ContextWrapper(Context mock) {
         this.mock = mock;

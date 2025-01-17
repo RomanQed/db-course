@@ -5,18 +5,15 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.romanqed.course.jwt.JwtProvider;
 import com.github.romanqed.course.jwt.JwtUser;
 import io.javalin.http.Context;
-import io.javalin.validation.Params;
-import io.javalin.validation.Validator;
 import org.mockito.Mockito;
 
-import java.util.Map;
 import java.util.Optional;
 
-final class MockUtil {
+public final class MockUtil {
     private MockUtil() {
     }
 
-    static JwtProvider<JwtUser> mockProvider(int userId) {
+    public static JwtProvider<JwtUser> mockProvider(int userId) {
         var id = Mockito.mock(Claim.class);
         Mockito.when(id.asInt()).thenReturn(userId);
         var decoded = Mockito.mock(DecodedJWT.class);
@@ -35,7 +32,7 @@ final class MockUtil {
         };
     }
 
-    static ContextWrapper mockCtx() {
+    public static ContextWrapper mockCtx() {
         var mock = Mockito.mock(Context.class);
         var ret = new ContextWrapper(mock);
         Mockito.doAnswer(inv -> {
@@ -49,7 +46,7 @@ final class MockUtil {
         return ret;
     }
 
-    static ContextBuilder ctxBuilder() {
+    public static ContextBuilder ctxBuilder() {
         return new ContextBuilder(MockUtil::mockCtx);
     }
 }
