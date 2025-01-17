@@ -1,0 +1,51 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.github.romanqed.jbench'
+archivesBaseName = 'javalin'
+version = '1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':')
+    implementation group: 'io.javalin', name: 'javalin', version: '6.1.4'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.18.2'
+}
+
+shadowJar {
+    manifest {
+        var date = new Date()
+        var javaVersion = System.getProperty("java.version")
+        var vmVendor = System.getProperty("java.vm.vendor")
+        var vmVersion = System.getProperty("java.vm.version")
+
+        attributes(
+                'Main-Class': 'com.github.romanqed.jbench.Main',
+                'Created-By': String.format("%s (%s %s)", javaVersion, vmVendor, vmVersion),
+                'Gradle-Version': "Gradle $gradle.gradleVersion",
+                'Build-Date': new SimpleDateFormat("yyyy-MM-dd").format(date),
+                'Build-Time': new SimpleDateFormat("HH:mm:ss.SSSZ").format(date),
+                'Built-By': 'Bakaldin Roman',
+                'Bundle-Name': 'Javalin Bench',
+                'Bundle-Version': archiveVersion,
+                'Bundle-SymbolicName': archivesBaseName,
+                'Implementation-Title': archivesBaseName,
+                'Implementation-Vendor': 'github.com/romanqed',
+                'Implementation-Version': archiveVersion,
+                'Specification-Title': archivesBaseName,
+                'Specification-Vendor': 'github.com/romanqed',
+                'Specification-Version': archiveVersion
+        )
+    }
+    archiveBaseName.set(archivesBaseName)
+    archiveClassifier.set('')
+    archiveVersion.set('')
+    mergeServiceFiles('META-INF/annotations')
+}

@@ -1,2 +1,4 @@
 rootProject.name = 'benchmark'
+include 'javalin'
+include 'spark'
 
