@@ -13,7 +13,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 
-@JavalinController("/currency")
+@JavalinController("/currencies")
 public final class CurrencyController extends AuthBase {
     private final Repository<Currency> currencies;
 

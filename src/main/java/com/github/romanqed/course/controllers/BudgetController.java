@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-@JavalinController("/budget")
+@JavalinController("/budgets")
 public final class BudgetController extends AuthBase {
     private final Connection connection;
     private final Repository<Budget> budgets;

@@ -16,7 +16,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 
-@JavalinController("/user")
+@JavalinController("/users")
 public final class UserController extends AuthBase {
     private final Repository<Account> accounts;
     private final Repository<Budget> budgets;

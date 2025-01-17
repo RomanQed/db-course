@@ -17,7 +17,7 @@ import io.javalin.http.HttpStatus;
 
 import java.util.List;
 
-@JavalinController("/exchange")
+@JavalinController("/exchanges")
 public final class ExchangeController extends AuthBase {
     private final Repository<Exchange> exchanges;
     private final Repository<Currency> currencies;

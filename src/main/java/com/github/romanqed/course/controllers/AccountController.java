@@ -16,7 +16,7 @@ import io.javalin.http.HttpStatus;
 
 import java.util.Objects;
 
-@JavalinController("/account")
+@JavalinController("/accounts")
 public final class AccountController extends AuthBase {
     private final Repository<Account> accounts;
     private final Repository<Currency> currencies;

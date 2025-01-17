@@ -21,7 +21,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
 
-@JavalinController("/transaction")
+@JavalinController("/transactions")
 public final class TransactionController extends AuthBase {
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

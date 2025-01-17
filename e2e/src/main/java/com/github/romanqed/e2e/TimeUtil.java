@@ -1,4 +1,4 @@
-package com.github.romanqed.course;
+package com.github.romanqed.e2e;
 
 import java.util.Calendar;
 import java.util.Date;

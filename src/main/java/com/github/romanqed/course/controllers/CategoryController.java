@@ -19,7 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@JavalinController("/category")
+@JavalinController("/categories")
 public final class CategoryController extends AuthBase {
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final DateFormat INPUT = new SimpleDateFormat("yyyy-MM-dd");
