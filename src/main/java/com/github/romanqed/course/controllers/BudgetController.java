@@ -11,7 +11,6 @@ import com.github.romanqed.course.jwt.JwtUser;
 import com.github.romanqed.course.models.Budget;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
-import com.github.romanqed.jfunc.Exceptions;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -19,8 +18,6 @@ import org.postgresql.util.PGobject;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;

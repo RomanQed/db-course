@@ -5,7 +5,6 @@ import io.javalin.validation.Validator;
 import org.mockito.Mockito;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class ContextBuilder {
@@ -15,6 +14,10 @@ public final class ContextBuilder {
     ContextBuilder(Supplier<ContextWrapper> supplier) {
         this.wrapper = null;
         this.supplier = supplier;
+    }
+
+    private static Validator createValidator(Object val, Class<?> cl) {
+        return new Validator<>(new Params<>("", (Class<Object>) cl, val == null ? null : val.toString(), val, () -> val));
     }
 
     void check() {
@@ -37,10 +40,6 @@ public final class ContextBuilder {
         check();
         Mockito.when(wrapper.mock.header("Authorization")).thenReturn("Bearer " + token);
         return this;
-    }
-
-    private static Validator createValidator(Object val, Class<?> cl) {
-        return new Validator<>(new Params<>("", (Class<Object>) cl, val == null ? null : val.toString(), val, () -> val));
     }
 
     public ContextBuilder withPath(String s, Object v) {

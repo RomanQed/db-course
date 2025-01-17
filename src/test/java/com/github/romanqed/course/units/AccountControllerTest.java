@@ -9,7 +9,8 @@ import com.github.romanqed.course.models.User;
 import io.javalin.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public final class AccountControllerTest {
 

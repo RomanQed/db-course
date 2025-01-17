@@ -37,7 +37,7 @@ public final class ExchangeControllerTest {
         assertEquals(HttpStatus.OK, ctx.status);
         assertEquals(10, ((Exchange) ctx.body).getId());
     }
-    
+
     @Test
     public void testGetNotExisting() {
         var es = new RepositoryImpl<Exchange>();
@@ -56,6 +56,7 @@ public final class ExchangeControllerTest {
         var lst = new ArrayList<Exchange>();
         var es = new RepositoryImpl<Exchange>() {
             String filter;
+
             @Override
             public List<Exchange> get(String role, String where) {
                 filter = where;
@@ -88,6 +89,7 @@ public final class ExchangeControllerTest {
         };
         var es = new RepositoryImpl<Exchange>() {
             final List<Exchange> l = new ArrayList<>();
+
             @Override
             public void put(String role, Exchange model) {
                 l.add(model);
@@ -115,7 +117,7 @@ public final class ExchangeControllerTest {
         assertEquals(2, es.l.size());
         assertEquals(2, ((List) ctx.body).size());
     }
-    
+
     @Test
     public void testPostAsNotAdmin() {
         var jwt = MockUtil.mockProvider(0);
@@ -197,7 +199,7 @@ public final class ExchangeControllerTest {
             if (e.getFactor() == 50.0) {
                 ++cnt;
             }
-            if (e.getFactor() == (1/50.0)) {
+            if (e.getFactor() == (1 / 50.0)) {
                 ++cnt;
             }
         }

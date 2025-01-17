@@ -25,8 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.sql.*;
-import java.util.*;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public final class Util {
     public static final String BUDGETS = "/budget_tools.sql";
@@ -36,8 +38,8 @@ public final class Util {
     public static final String ROLES = "/roles.sql";
     public static final String USER = "postgres";
     public static final String PASSWORD = "postgres";
-    public static final String URL = readURL();
     public static final String URL_CONFIG = "int.conn";
+    public static final String URL = readURL();
     public static final String SYSTEM_ROLE = "_service";
     private static final Class<?> CLASS = Util.class;
 

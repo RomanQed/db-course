@@ -36,6 +36,7 @@ public final class CategoryControllerTest {
         var lst = new ArrayList<Transaction>();
         var trs = new RepositoryImpl<Transaction>() {
             String where;
+
             @Override
             public List<Transaction> get(String role, String where) {
                 this.where = where;
@@ -151,6 +152,7 @@ public final class CategoryControllerTest {
         };
         var cats = new RepositoryImpl<Category>() {
             Category cat;
+
             @Override
             public void put(String role, Category model) {
                 cat = model;
@@ -206,6 +208,7 @@ public final class CategoryControllerTest {
         };
         var cats = new RepositoryImpl<Category>() {
             Category cat;
+
             @Override
             public Category get(String role, int key) {
                 var ret = new Category();

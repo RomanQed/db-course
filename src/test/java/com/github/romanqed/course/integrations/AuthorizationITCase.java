@@ -37,6 +37,12 @@ public final class AuthorizationITCase {
         users = Util.createUserController(jwt, encoder, userRepo);
     }
 
+    @AfterAll
+    public static void destroy() throws SQLException {
+        connection.close();
+        Util.dropDatabase(database);
+    }
+
     @Test
     public void test() {
         // Register new user
@@ -71,11 +77,5 @@ public final class AuthorizationITCase {
         user = (User) ctx.body;
         assertEquals("admin", user.getLogin());
         assertTrue(user.isAdmin());
-    }
-
-    @AfterAll
-    public static void destroy() throws SQLException {
-        connection.close();
-        Util.dropDatabase(database);
     }
 }

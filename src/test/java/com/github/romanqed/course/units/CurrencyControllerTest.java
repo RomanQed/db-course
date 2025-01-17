@@ -80,6 +80,7 @@ public final class CurrencyControllerTest {
         };
         var cs = new RepositoryImpl<Currency>() {
             Currency c;
+
             @Override
             public void put(String role, Currency model) {
                 c = model;
@@ -135,6 +136,7 @@ public final class CurrencyControllerTest {
         };
         var cs = new RepositoryImpl<Currency>() {
             Currency c;
+
             @Override
             public Currency get(String role, int key) {
                 var ret = new Currency();

@@ -20,10 +20,10 @@ public final class PostgresRepository<V extends Entity> implements Repository<V>
     private final Deserializer deserializer;
 
     public PostgresRepository(Connection connection,
-                       String table,
-                       Supplier<V> supplier,
-                       Serializer serializer,
-                       Deserializer deserializer) {
+                              String table,
+                              Supplier<V> supplier,
+                              Serializer serializer,
+                              Deserializer deserializer) {
         this.connection = connection;
         this.table = table;
         this.supplier = supplier;

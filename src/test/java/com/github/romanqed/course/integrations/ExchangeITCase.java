@@ -67,6 +67,12 @@ public final class ExchangeITCase {
         assertEquals(first.getId(), p2.getTo());
     }
 
+    @AfterAll
+    public static void destroy() throws SQLException {
+        connection.close();
+        Util.dropDatabase(database);
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     public void test() throws SQLException {
@@ -135,11 +141,5 @@ public final class ExchangeITCase {
         exchanges.find(ctx.mock);
         assertEquals(HttpStatus.OK, ctx.status);
         assertTrue(((List<Exchange>) ctx.body).isEmpty());
-    }
-
-    @AfterAll
-    public static void destroy() throws SQLException {
-        connection.close();
-        Util.dropDatabase(database);
     }
 }

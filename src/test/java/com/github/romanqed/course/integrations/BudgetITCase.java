@@ -134,6 +134,12 @@ public final class BudgetITCase {
         assertEquals(HttpStatus.OK, ctx.status);
     }
 
+    @AfterAll
+    public static void destroy() throws SQLException {
+        connection.close();
+        Util.dropDatabase(database);
+    }
+
     @Test
     public void test() throws SQLException {
         // Login
@@ -174,11 +180,5 @@ public final class BudgetITCase {
         assertEquals(100, status.getSpent());
         assertEquals(1000, status.getGot());
         assertEquals(900, status.getTotal());
-    }
-
-    @AfterAll
-    public static void destroy() throws SQLException {
-        connection.close();
-        Util.dropDatabase(database);
     }
 }
