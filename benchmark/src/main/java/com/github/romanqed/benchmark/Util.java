@@ -7,12 +7,12 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 final class Util {
-    private Util() {
-    }
-
     private static final ObjectName OS_NAME = Exceptions.suppress(
             () -> ObjectName.getInstance("java.lang:type=OperatingSystem")
     );
+
+    private Util() {
+    }
 
     static double getProcessCpuLoad(MBeanServer mbs) throws Exception {
         var list = mbs.getAttributes(OS_NAME, new String[]{"ProcessCpuLoad"});

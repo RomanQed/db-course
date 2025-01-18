@@ -1,7 +1,6 @@
 package com.github.romanqed.benchmark;
 
 import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.binder.jetty.JettyConnectionMetrics;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
