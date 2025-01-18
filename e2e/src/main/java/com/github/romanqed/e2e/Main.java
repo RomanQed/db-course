@@ -49,7 +49,6 @@ public class Main {
             System.out.println("Stopping app...");
             // Shutdown app
             shutdown.run();
-            System.out.println("App stopped");
         }
     }
 
@@ -370,6 +369,8 @@ public class Main {
         return () -> {
             javalin.stop();
             postgres.close();
+            System.out.println("App stopped");
+            System.exit(0);
         };
     }
 
