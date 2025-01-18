@@ -10,7 +10,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;

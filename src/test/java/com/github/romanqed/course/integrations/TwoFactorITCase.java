@@ -43,20 +43,6 @@ public final class TwoFactorITCase {
         return GSON.fromJson(raw, type);
     }
 
-    private static final class Response {
-        public List<Email> content;
-    }
-
-    private static final class Email {
-        public Integer id;
-        public String toAddress;
-        public List<Content> contents;
-    }
-
-    private static final class Content {
-        public String data;
-    }
-
     private static String requestCode() throws IOException, InterruptedException {
         var req = HttpRequest.newBuilder()
                 .uri(SMTP_FAKE_SERVER.resolve("/api/emails"))
@@ -136,5 +122,19 @@ public final class TwoFactorITCase {
         auth.login2Fa(ctx.mock);
         assertEquals(HttpStatus.OK, ctx.status);
         assertNotNull(((Token) ctx.body).getToken());
+    }
+
+    private static final class Response {
+        public List<Email> content;
+    }
+
+    private static final class Email {
+        public Integer id;
+        public String toAddress;
+        public List<Content> contents;
+    }
+
+    private static final class Content {
+        public String data;
     }
 }
