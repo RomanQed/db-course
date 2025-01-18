@@ -49,14 +49,18 @@ public final class BudgetDto implements Validated {
         this.value = value;
     }
 
+    private void checkTimeRange() {
+        if (start == null || start.equals(end) || end == null || end.before(start)) {
+            throw new ValidateException("Invalid time ranges");
+        }
+    }
+
     @Override
     public void validate() throws ValidateException {
         if (currency == null || currency < 1) {
             throw new ValidateException("Invalid currency id");
         }
-        if (start == null || end == null || start.equals(end) || end.before(start)) {
-            throw new ValidateException("Invalid time ranges");
-        }
+        checkTimeRange();
         if (value == null || value < 0) {
             throw new ValidateException("Invalid value");
         }

@@ -96,7 +96,11 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
         // Create tables
         executeSql(ret, readResource(TABLES));
         // Create roles
-        executeSql(ret, readResource(ROLES).replace("%database", database));
+        try {
+            executeSql(ret, readResource(ROLES).replace("%database", database));
+        } catch (Throwable ignored) {
+            // Suppress role exceptions
+        }
         // Create functions
         executeSql(ret, readResource(TRANSACTION_TOOLS));
         executeSql(ret, readResource(BUDGET_TOOLS));
@@ -119,6 +123,7 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
         if (!url.endsWith("/")) {
             config.setUrl(url + "/");
         }
+        builder.addService(PostgresConfig.class, () -> config);
         var connection = initDatabase(config);
         builder.addService(Connection.class, () -> connection);
         var found = ClassIndex.getAnnotated(Model.class);

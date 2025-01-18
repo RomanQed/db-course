@@ -114,6 +114,23 @@ public final class BudgetController extends AuthBase {
         ctx.json(budget);
     }
 
+    private void updateBudget(Context ctx, int id, Integer currency, String description, Double value) {
+        var budget = Util.seeOwned(ctx, this, budgets, id);
+        if (budget == null) {
+            return;
+        }
+        if (currency != null) {
+            budget.setCurrency(currency);
+        }
+        if (description != null) {
+            budget.setDescription(description);
+        }
+        if (value != null) {
+            budget.setValue(value);
+        }
+        budgets.update(USER_ROLE, budget);
+    }
+
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
@@ -132,20 +149,7 @@ public final class BudgetController extends AuthBase {
             ctx.status(HttpStatus.NOT_FOUND);
             return;
         }
-        var budget = Util.seeOwned(ctx, this, budgets, id);
-        if (budget == null) {
-            return;
-        }
-        if (currency != null) {
-            budget.setCurrency(currency);
-        }
-        if (description != null) {
-            budget.setDescription(description);
-        }
-        if (value != null) {
-            budget.setValue(value);
-        }
-        budgets.update(USER_ROLE, budget);
+        updateBudget(ctx, id, currency, description, value);
     }
 
     @Route(method = HandlerType.DELETE, route = "/{id}")

@@ -6,6 +6,7 @@ import com.github.romanqed.course.di.ScanProviderDirector;
 import com.github.romanqed.course.dto.*;
 import com.github.romanqed.course.hash.Encoder;
 import com.github.romanqed.course.models.*;
+import com.github.romanqed.course.postgres.PostgresConfig;
 import com.github.romanqed.jfunc.Runnable0;
 import com.github.romanqed.jtype.Types;
 import com.google.gson.Gson;
@@ -23,6 +24,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 
@@ -360,6 +364,7 @@ public class Main {
         var director = new ScanProviderDirector();
         director.setBuilder(builder);
         var provider = director.build();
+        var config = provider.instantiate(PostgresConfig.class);
         // Get postgres db instance
         var postgres = provider.instantiate(Database.class);
         initAdminUser(provider);
@@ -369,6 +374,7 @@ public class Main {
         return () -> {
             javalin.stop();
             postgres.close();
+            doCleanup(config);
             System.out.println("App stopped");
             System.exit(0);
         };
@@ -384,5 +390,20 @@ public class Main {
         var user = User.of("admin", encoder.encode("pass"));
         user.setAdmin(true);
         users.put(SYSTEM_ROLE, user);
+    }
+
+    private static void doCleanup(PostgresConfig config) throws SQLException {
+        var url = config.getUrl();
+        var service = url + "postgres";
+        var connection = DriverManager.getConnection(service, config.getUser(), config.getPassword());
+        var database = config.getDatabase();
+        executeSql(connection, "drop database " + database);
+        connection.close();
+    }
+
+    private static void executeSql(Connection connection, String sql) throws SQLException {
+        var statement = connection.createStatement();
+        statement.execute(sql);
+        statement.close();
     }
 }
