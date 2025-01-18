@@ -12,11 +12,12 @@ import java.util.Properties;
 public final class LocalMailerStub implements Mailer {
     private static final String HOST = "mail.smtp.host";
     private static final String PORT = "mail.smtp.port";
+    private static final String MAIL_SERVER = System.getenv("MAIL_SERVER");
 
     @Override
     public void send(String address, String message) {
         var props = (Properties) System.getProperties().clone();
-        props.setProperty(HOST, "localhost");
+        props.setProperty(HOST, MAIL_SERVER);
         props.setProperty(PORT, "8025");
         var session = Session.getDefaultInstance(props);
         try {
