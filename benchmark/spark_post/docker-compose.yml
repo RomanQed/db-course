@@ -1,0 +1,79 @@
+version: '3.9'
+
+networks:
+  k6:
+  grafana:
+  monitoring:
+
+volumes:
+  spark_post_influxdb_data:
+
+services:
+  spark_post:
+#    deploy:
+#      resources:
+        # limits:
+          # memory: 1G
+          # cpus: "0.25"
+
+    build:
+      context: ..
+      dockerfile: spark.dockerfile
+    ports:
+      - "7003:7000"
+      - "7004:7001"
+    networks:
+      - k6
+      - monitoring
+    environment:
+      PORT: 7000
+      METRIC_PORT: 7001
+
+  spark_post_influxdb:
+    image: influxdb:1.8
+    networks:
+      - k6
+      - grafana
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_BIND_ADDRESS=:8098
+  
+  spark_post_prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.listen-address=:9095"
+    ports:
+      - "9095:9095"
+    networks:
+      - monitoring
+
+  k6_spark_post:
+    image: grafana/k6:latest
+    depends_on:
+      - spark_post
+    networks:
+      - k6
+    environment:
+      - K6_OUT=influxdb=http://spark_post_influxdb:8098/k6
+    volumes:
+      - ./scripts:/scripts
+    command: run /scripts/script_spark_post.js
+
+  grafana_spark_post:
+    image: grafana/grafana:9.3.8
+    networks:
+      - grafana
+      - monitoring
+    ports:
+      - "3005:3005"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_SERVER_HTTP_PORT=3005
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
+      - ./dashboards:/var/lib/grafana/dashboards

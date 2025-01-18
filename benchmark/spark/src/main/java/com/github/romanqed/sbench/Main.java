@@ -19,6 +19,7 @@ public class Main {
         var metrics = MetricUtil.startMetricServer();
         // Start spark
         var port = Integer.parseInt(System.getenv("PORT"));
+        System.out.println("PORT: " + port);
         Spark.port(port);
         var gson = new Gson();
         Spark.get("/get", (req, res) -> {

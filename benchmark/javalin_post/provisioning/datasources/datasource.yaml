@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://javalin_post_influxdb:8098
+    database: k6
+    isDefault: true
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://javalin_post_prometheus:9093
+    isDefault: false

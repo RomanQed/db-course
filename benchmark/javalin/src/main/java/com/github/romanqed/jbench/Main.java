@@ -15,6 +15,7 @@ public final class Main {
         var metrics = MetricUtil.startMetricServer();
         // Start javalin
         var port = Integer.parseInt(System.getenv("PORT"));
+        System.out.println("PORT: " + port);
         var javalin = Javalin.create();
         javalin.get("/get", ctx -> {
             var rsp = new ArrayList<Data>(50);
