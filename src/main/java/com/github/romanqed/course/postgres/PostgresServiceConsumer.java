@@ -31,7 +31,6 @@ public final class PostgresServiceConsumer implements ServiceProviderConsumer {
     private static final String CHECK = "/sql/check.sql";
     private static final String TRANSACTION_TOOLS = "/sql/transaction_tools.sql";
     private static final String BUDGET_TOOLS = "/sql/budget_tools.sql";
-    private static final String GOAL_TOOLS = "/sql/goal_tools.sql";
 
     private static Connection initDatabase(PostgresConfig config) throws Exception {
         var url = config.getUrl();

@@ -2,7 +2,7 @@ package com.github.romanqed.course.units;
 
 import com.github.romanqed.course.MockUtil;
 import com.github.romanqed.course.controllers.UserController;
-import com.github.romanqed.course.dto.Credentials;
+import com.github.romanqed.course.dto.UserUpdateDto;
 import com.github.romanqed.course.models.Account;
 import com.github.romanqed.course.models.Budget;
 import com.github.romanqed.course.models.Transaction;
@@ -119,9 +119,10 @@ public final class UserControllerTest {
                 u = model;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
-        var dto = new Credentials();
-        dto.setLogin("newlog");
+        var encoder = new EncoderImpl();
+        var ct = new UserController(jwt, users, null, null, null, encoder);
+        var dto = new UserUpdateDto();
+        dto.setPassword("newpass");
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withAuth()
@@ -131,14 +132,14 @@ public final class UserControllerTest {
 
         assertEquals(HttpStatus.OK, ctx.status);
         assertEquals(24, users.u.getId());
-        assertEquals("newlog", users.u.getLogin());
+        assertEquals("newpass", users.u.getPassword());
     }
 
     @Test
     public void testUpdateSelfUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
         var ct = new UserController(jwt, null, null, null, null, null);
-        var dto = new Credentials();
+        var dto = new UserUpdateDto();
         var ctx = MockUtil.ctxBuilder()
                 .withBody(dto)
                 .withPath("id", 0)
@@ -167,9 +168,10 @@ public final class UserControllerTest {
                 u = model;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
-        var dto = new Credentials();
-        dto.setLogin("newlog");
+        var encoder = new EncoderImpl();
+        var ct = new UserController(jwt, users, null, null, null, encoder);
+        var dto = new UserUpdateDto();
+        dto.setPassword("newpass");
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 24)
                 .withBody(dto)
@@ -180,7 +182,7 @@ public final class UserControllerTest {
 
         assertEquals(HttpStatus.OK, ctx.status);
         assertEquals(24, users.u.getId());
-        assertEquals("newlog", users.u.getLogin());
+        assertEquals("newpass", users.u.getPassword());
     }
 
     @Test
@@ -195,8 +197,7 @@ public final class UserControllerTest {
             }
         };
         var ct = new UserController(jwt, users, null, null, null, null);
-        var dto = new Credentials();
-        dto.setLogin("newlog");
+        var dto = new UserUpdateDto();
         var ctx = MockUtil.ctxBuilder()
                 .withPath("id", 24)
                 .withBody(dto)

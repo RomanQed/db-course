@@ -102,7 +102,7 @@ public final class BudgetITCase {
         );
         // Init controllers
         var jwt = Util.createJwtProvider();
-        auth = new AuthController(userRepo, jwt, encoder);
+        auth = new AuthController(userRepo, jwt, encoder, null);
         transactions = new TransactionController(
                 jwt,
                 connection,

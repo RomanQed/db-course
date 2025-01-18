@@ -1,8 +1,8 @@
 package com.github.romanqed.course.controllers;
 
 import com.github.romanqed.course.database.Repository;
-import com.github.romanqed.course.dto.Credentials;
 import com.github.romanqed.course.dto.DtoUtil;
+import com.github.romanqed.course.dto.UserUpdateDto;
 import com.github.romanqed.course.hash.Encoder;
 import com.github.romanqed.course.javalin.JavalinController;
 import com.github.romanqed.course.javalin.Route;
@@ -61,14 +61,21 @@ public final class UserController extends AuthBase {
         ctx.json(found);
     }
 
-    private boolean updateUser(Credentials creds, User user) {
-        var login = creds.getLogin();
-        var password = creds.getPassword();
-        if (login == null && password == null) {
+    private boolean updateUser(UserUpdateDto dto, User user) {
+        var password = dto.getPassword();
+        var email = dto.getEmail();
+        var twoFactor = dto.getTwoFactor();
+        if (password == null && email == null) {
             return true;
         }
-        if (login != null) {
-            user.setLogin(login);
+        if (email != null) {
+            user.setEmail(email);
+        }
+        if (twoFactor != null) {
+            if (twoFactor && user.getEmail() == null) {
+                return true;
+            }
+            user.setTwoFactor(twoFactor);
         }
         if (password != null) {
             user.setPassword(encoder.encode(password));
@@ -78,15 +85,15 @@ public final class UserController extends AuthBase {
 
     @Route(method = HandlerType.PATCH, route = "/")
     public void updateSelf(Context ctx) {
-        var credentials = DtoUtil.parse(ctx, Credentials.class);
-        if (credentials == null) {
+        var dto = DtoUtil.parse(ctx, UserUpdateDto.class);
+        if (dto == null) {
             return;
         }
         var user = getCheckedUser(ctx);
         if (user == null) {
             return;
         }
-        if (updateUser(credentials, user)) {
+        if (updateUser(dto, user)) {
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
@@ -97,8 +104,8 @@ public final class UserController extends AuthBase {
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
         int id = ctx.pathParamAsClass("id", Integer.class).get();
-        var credentials = DtoUtil.parse(ctx, Credentials.class);
-        if (credentials == null) {
+        var dto = DtoUtil.parse(ctx, UserUpdateDto.class);
+        if (dto == null) {
             return;
         }
         var user = getCheckedUser(ctx);
@@ -114,7 +121,7 @@ public final class UserController extends AuthBase {
             ctx.status(HttpStatus.NOT_FOUND);
             return;
         }
-        if (updateUser(credentials, toUpdate)) {
+        if (updateUser(dto, toUpdate)) {
             ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }

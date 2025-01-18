@@ -32,7 +32,8 @@ public final class AuthorizationITCase {
         auth = new AuthController(
                 userRepo,
                 jwt,
-                encoder
+                encoder,
+                null
         );
         users = Util.createUserController(jwt, encoder, userRepo);
     }

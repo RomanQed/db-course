@@ -23,6 +23,8 @@ create table users
     id       serial not null primary key,
     login    text not null,
     password text not null,
+    email text,
+    twoFactor bool not null,
     admin    bool not null
 );
 

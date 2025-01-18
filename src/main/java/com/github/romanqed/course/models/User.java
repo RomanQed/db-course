@@ -12,6 +12,8 @@ import java.util.Objects;
 public final class User implements Entity {
     private int id;
     private String login;
+    private String email;
+    private boolean twoFactor;
     private String password;
     private boolean admin;
 
@@ -19,6 +21,8 @@ public final class User implements Entity {
     public static void to(Setter setter, User user) {
         setter.set("login", user.login);
         setter.set("password", user.password);
+        setter.set("email", user.email);
+        setter.set("twoFactor", user.twoFactor);
         setter.set("admin", user.admin);
     }
 
@@ -27,6 +31,8 @@ public final class User implements Entity {
         user.id = getter.get("id", Integer.class);
         user.login = getter.get("login", String.class);
         user.password = getter.get("password", String.class);
+        user.email = getter.get("email", String.class);
+        user.twoFactor = getter.get("twoFactor", Boolean.class);
         user.admin = getter.get("admin", Boolean.class);
     }
 
@@ -69,5 +75,21 @@ public final class User implements Entity {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isTwoFactor() {
+        return twoFactor;
+    }
+
+    public void setTwoFactor(boolean twoFactor) {
+        this.twoFactor = twoFactor;
     }
 }
