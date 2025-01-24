@@ -20,7 +20,7 @@ public final class JavalinServiceConsumer implements ServiceProviderConsumer {
     private Iterable<Class<?>> classes; // Found controller classes
 
     private static void processControllerClass(ServiceProvider provider, Javalin javalin, Class<?> clazz) {
-        var object = provider.instantiate(clazz);
+        var object = provider.get(clazz);
         var processed = HANDLER_FACTORY.create(object);
         processed.forEach((data, handler) -> javalin.addHttpHandler(data.getType(), data.getRoute(), handler));
     }
@@ -30,14 +30,14 @@ public final class JavalinServiceConsumer implements ServiceProviderConsumer {
         var config = Util.read(JAVALIN_CONFIG, ServerConfig.class);
         Objects.requireNonNull(config.getLogin());
         Objects.requireNonNull(config.getPassword());
-        builder.addService(ServerConfig.class, () -> config);
+        builder.addInstance(ServerConfig.class, config);
         var javalin = Javalin.create(e ->
                 e.bundledPlugins.enableCors(cors ->
                         cors.addRule(CorsPluginConfig.CorsRule::anyHost)
                 )
         );
         javalin.after(new CorsHandler());
-        builder.addService(Javalin.class, () -> javalin);
+        builder.addInstance(Javalin.class, javalin);
         classes = ClassIndex.getAnnotated(JavalinController.class);
         for (var clazz : classes) {
             builder.addSingleton(clazz);
@@ -46,9 +46,9 @@ public final class JavalinServiceConsumer implements ServiceProviderConsumer {
 
     @Override
     public void post(ServiceProvider provider) {
-        var javalin = provider.instantiate(Javalin.class);
+        var javalin = provider.get(Javalin.class);
         var config = javalin.unsafeConfig();
-        config.jsonMapper(provider.instantiate(JsonMapper.class));
+        config.jsonMapper(provider.get(JsonMapper.class));
         for (var clazz : classes) {
             processControllerClass(provider, javalin, clazz);
         }

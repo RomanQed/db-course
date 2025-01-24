@@ -45,8 +45,7 @@ public final class JwtServiceConsumer implements ServiceProviderConsumer {
         var algorithm = hmac.apply(secret);
         var verifier = JWT.require(algorithm).build();
         var jwtProvider = new JWTProvider<>(algorithm, generator, verifier);
-        var wrapper = new JavalinJwtProvider<>(jwtProvider);
-        builder.addService(JWT_PROVIDER_TYPE, () -> wrapper);
+        builder.addInstance(JWT_PROVIDER_TYPE, new JavalinJwtProvider<>(jwtProvider));
     }
 
     @Override

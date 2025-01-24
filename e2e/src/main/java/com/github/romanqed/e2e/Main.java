@@ -11,8 +11,8 @@ import com.github.romanqed.jfunc.Runnable0;
 import com.github.romanqed.jtype.Types;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.github.amayaframework.di.Builders;
-import io.github.amayaframework.di.HashRepository;
+import io.github.amayaframework.di.HashServiceRepository;
+import io.github.amayaframework.di.ProviderBuilders;
 import io.github.amayaframework.di.ServiceProvider;
 import io.javalin.Javalin;
 import org.slf4j.Logger;
@@ -354,21 +354,21 @@ public class Main {
 
     private static Runnable0 createApp(int[] holder) {
         // Configure DI
-        var repository = new HashRepository();
-        var builder = Builders.createChecked();
+        var repository = new HashServiceRepository();
+        var builder = ProviderBuilders.createChecked();
         builder.setRepository(repository);
         // Stub project logger
         var logger = LoggerFactory.getLogger("main");
-        builder.addService(Logger.class, () -> logger);
+        builder.addInstance(Logger.class, logger);
         // Process all di-dependent actions
         var director = new ScanProviderDirector();
         director.setBuilder(builder);
         var provider = director.build();
-        var config = provider.instantiate(PostgresConfig.class);
+        var config = provider.get(PostgresConfig.class);
         // Get postgres db instance
-        var postgres = provider.instantiate(Database.class);
+        var postgres = provider.get(Database.class);
         initAdminUser(provider);
-        var javalin = provider.instantiate(Javalin.class);
+        var javalin = provider.get(Javalin.class);
         javalin.start(0);
         holder[0] = javalin.port();
         return () -> {
@@ -382,8 +382,8 @@ public class Main {
 
     @SuppressWarnings("unchecked")
     private static void initAdminUser(ServiceProvider provider) {
-        var encoder = provider.instantiate(Encoder.class);
-        var users = (Repository<User>) provider.instantiate(Types.of(Repository.class, User.class));
+        var encoder = provider.get(Encoder.class);
+        var users = (Repository<User>) provider.get(Types.of(Repository.class, User.class));
         if (users.exists(SYSTEM_ROLE, "login", "admin")) {
             return;
         }

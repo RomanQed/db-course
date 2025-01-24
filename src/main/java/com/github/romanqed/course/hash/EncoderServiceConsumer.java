@@ -45,8 +45,7 @@ public final class EncoderServiceConsumer implements ServiceProviderConsumer {
         } else {
             salt = Exceptions.suppress(EncoderServiceConsumer::readSalt);
         }
-        var encoder = new PBKDF2Encoder(salt);
-        builder.addService(Encoder.class, () -> encoder);
+        builder.addInstance(Encoder.class, new PBKDF2Encoder(salt));
     }
 
     @Override

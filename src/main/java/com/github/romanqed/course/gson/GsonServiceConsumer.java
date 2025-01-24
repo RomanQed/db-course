@@ -12,8 +12,7 @@ public final class GsonServiceConsumer implements ServiceProviderConsumer {
 
     @Override
     public void pre(ServiceProviderBuilder builder) {
-        var gson = new Gson();
-        builder.addService(Gson.class, () -> gson);
+        builder.addSingleton(Gson.class);
         builder.addSingleton(JsonMapper.class, GsonMapper.class);
     }
 

@@ -21,12 +21,12 @@ public final class Main {
         // Configure logger
         PropertyConfigurator.configure(LOGGER_CONFIG);
         // Configure DI
-        var repository = new HashRepository();
-        var builder = Builders.createChecked();
+        var repository = new HashServiceRepository();
+        var builder = ProviderBuilders.createChecked();
         builder.setRepository(repository);
         // Add project logger
         var logger = LoggerFactory.getLogger("main");
-        builder.addService(Logger.class, () -> logger);
+        builder.addInstance(Logger.class, logger);
         // Process all di-dependent actions
         var director = new ScanProviderDirector();
         director.setBuilder(builder);
@@ -42,7 +42,7 @@ public final class Main {
             throw e;
         }
         // Get postgres db instance
-        var postgres = provider.instantiate(Database.class);
+        var postgres = provider.get(Database.class);
         // Init admin user
         initAdminUser(provider, logger);
         // Start Javalin instance
@@ -55,8 +55,8 @@ public final class Main {
     }
 
     private static Javalin startJavalin(ServiceProvider provider, Logger logger) {
-        var javalin = provider.instantiate(Javalin.class);
-        var config = provider.instantiate(ServerConfig.class);
+        var javalin = provider.get(Javalin.class);
+        var config = provider.get(ServerConfig.class);
         var host = config.getHost();
         var port = config.getPort();
         if (host == null || host.isEmpty()) {
@@ -71,9 +71,9 @@ public final class Main {
 
     @SuppressWarnings("unchecked")
     private static void initAdminUser(ServiceProvider provider, Logger logger) {
-        var config = provider.instantiate(ServerConfig.class);
-        var encoder = provider.instantiate(Encoder.class);
-        var users = (Repository<User>) provider.instantiate(Types.of(Repository.class, User.class));
+        var config = provider.get(ServerConfig.class);
+        var encoder = provider.get(Encoder.class);
+        var users = (Repository<User>) provider.get(Types.of(Repository.class, User.class));
         if (users.exists(SYSTEM_ROLE, "login", config.getLogin())) {
             logger.info("Admin user exists");
             return;
