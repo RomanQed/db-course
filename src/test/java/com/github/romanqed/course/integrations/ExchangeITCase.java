@@ -53,7 +53,7 @@ public final class ExchangeITCase {
         var telemetry = OpenTelemetry.noop();
         auth = new AuthController(userRepo, jwt, encoder, null, telemetry);
         currencies = new CurrencyController(jwt, userRepo, curRepo, telemetry);
-        exchanges = new ExchangeController(jwt, userRepo, exRepo, curRepo);
+        exchanges = new ExchangeController(jwt, userRepo, exRepo, curRepo, telemetry);
     }
 
     private static void assertExchanges(List<Exchange> es, Currency first, Currency second) {

@@ -93,7 +93,7 @@ public final class BudgetController extends AuthBase {
 
     @Route(method = HandlerType.POST)
     public void post(Context ctx) {
-        var dto = DtoUtil.validate(ctx, BudgetDto.class);
+        var dto = DtoUtil.validate(ctx, BudgetDto.class, null);
         if (dto == null) {
             return;
         }
@@ -134,7 +134,7 @@ public final class BudgetController extends AuthBase {
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var dto = DtoUtil.parse(ctx, BudgetDto.class);
+        var dto = DtoUtil.parse(ctx, BudgetDto.class, null);
         if (dto == null) {
             return;
         }

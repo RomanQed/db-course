@@ -79,7 +79,7 @@ public final class TransactionController extends AuthBase {
 
     @Route(method = HandlerType.POST, route = "/")
     public void post(Context ctx) throws SQLException {
-        var dto = DtoUtil.validate(ctx, TransactionDto.class);
+        var dto = DtoUtil.validate(ctx, TransactionDto.class, null);
         if (dto == null) {
             return;
         }

@@ -164,9 +164,8 @@ public final class CategoryController extends AuthBase {
     @Route(method = HandlerType.POST)
     public void post(Context ctx) {
         var span = startSpan("post", ctx);
-        var dto = DtoUtil.validate(ctx, NameDto.class);
+        var dto = DtoUtil.validate(ctx, NameDto.class, span);
         if (dto == null) {
-            span.addEvent("MissingName");
             span.end();
             return;
         }
@@ -185,9 +184,8 @@ public final class CategoryController extends AuthBase {
     public void update(Context ctx) {
         var span = startSpan("update", ctx);
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var dto = DtoUtil.validate(ctx, NameDto.class);
+        var dto = DtoUtil.validate(ctx, NameDto.class, span);
         if (dto == null) {
-            span.addEvent("MissingName");
             span.end();
             return;
         }

@@ -6,7 +6,10 @@ import com.github.romanqed.course.dto.ExchangeDto;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.Exchange;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 public final class ExchangeControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testGet() {
@@ -27,8 +31,10 @@ public final class ExchangeControllerTest {
                 return ret;
             }
         };
-        var ct = new ExchangeController(null, null, es, null);
+        var ct = new ExchangeController(null, null, es, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/exchanges/10")
                 .withPath("id", 10)
                 .build();
 
@@ -41,8 +47,10 @@ public final class ExchangeControllerTest {
     @Test
     public void testGetNotExisting() {
         var es = new RepositoryImpl<Exchange>();
-        var ct = new ExchangeController(null, null, es, null);
+        var ct = new ExchangeController(null, null, es, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/exchanges/10")
                 .withPath("id", 10)
                 .build();
 
@@ -63,8 +71,10 @@ public final class ExchangeControllerTest {
                 return lst;
             }
         };
-        var ct = new ExchangeController(null, null, es, null);
+        var ct = new ExchangeController(null, null, es, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/exchanges")
                 .withQuery("from", 0)
                 .withQuery("to", 1)
                 .build();
@@ -101,12 +111,14 @@ public final class ExchangeControllerTest {
                 return true;
             }
         };
-        var ct = new ExchangeController(jwt, users, es, cs);
+        var ct = new ExchangeController(jwt, users, es, cs, TELEMETRY);
         var dto = new ExchangeDto();
         dto.setFrom(0);
         dto.setTo(1);
         dto.setFactor(100.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/exchanges")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -128,12 +140,14 @@ public final class ExchangeControllerTest {
             }
         };
         var es = new RepositoryImpl<Exchange>();
-        var ct = new ExchangeController(jwt, users, es, null);
+        var ct = new ExchangeController(jwt, users, es, null, TELEMETRY);
         var dto = new ExchangeDto();
         dto.setFrom(0);
         dto.setTo(1);
         dto.setFactor(100.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/exchanges")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -182,10 +196,12 @@ public final class ExchangeControllerTest {
                 l.add(model);
             }
         };
-        var ct = new ExchangeController(jwt, users, es, null);
+        var ct = new ExchangeController(jwt, users, es, null, TELEMETRY);
         var dto = new ExchangeDto();
         dto.setFactor(50.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/exchanges/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -216,10 +232,12 @@ public final class ExchangeControllerTest {
             }
         };
         var es = new RepositoryImpl<Exchange>();
-        var ct = new ExchangeController(jwt, users, es, null);
+        var ct = new ExchangeController(jwt, users, es, null, TELEMETRY);
         var dto = new ExchangeDto();
         dto.setFactor(100.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/exchanges/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -263,8 +281,10 @@ public final class ExchangeControllerTest {
                 return List.of(ret);
             }
         };
-        var ct = new ExchangeController(jwt, users, es, null);
+        var ct = new ExchangeController(jwt, users, es, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/exchanges/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();
@@ -292,8 +312,10 @@ public final class ExchangeControllerTest {
                 return ret;
             }
         };
-        var ct = new ExchangeController(jwt, users, es, null);
+        var ct = new ExchangeController(jwt, users, es, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/exchanges/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();

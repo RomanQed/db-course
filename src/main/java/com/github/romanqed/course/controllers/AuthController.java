@@ -13,7 +13,6 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
@@ -80,16 +79,11 @@ public final class AuthController {
     @Route(method = HandlerType.POST, route = "/register")
     public void register(Context ctx) {
         var span = startSpan("register", ctx);
-        var credentials = DtoUtil.validate(ctx, Credentials.class);
+        var credentials = DtoUtil.validate(ctx, Credentials.class, span);
         if (credentials == null) {
-            span.addEvent("InvalidCredentialFormat");
             span.end();
             return;
         }
-        span.addEvent("CredentialsAccepted", Attributes.builder()
-                .put("login", credentials.getLogin())
-                .build()
-        );
         var login = credentials.getLogin();
         if (users.exists(SYSTEM_ROLE, "login", login)) {
             ctx.status(HttpStatus.CONFLICT);
@@ -111,16 +105,11 @@ public final class AuthController {
     @Route(method = HandlerType.POST, route = "/login")
     public void login(Context ctx) {
         var span = startSpan("login", ctx);
-        var credentials = DtoUtil.validate(ctx, Credentials.class);
+        var credentials = DtoUtil.validate(ctx, Credentials.class, span);
         if (credentials == null) {
-            span.addEvent("InvalidCredentialFormat");
             span.end();
             return;
         }
-        span.addEvent("CredentialsAccepted", Attributes.builder()
-                .put("login", credentials.getLogin())
-                .build()
-        );
         var login = credentials.getLogin();
         var user = users.getFirst(SYSTEM_ROLE, "login", login);
         if (user == null) {
@@ -165,16 +154,11 @@ public final class AuthController {
     @Route(method = HandlerType.POST, route = "/2fa")
     public void login2Fa(Context ctx) {
         var span = startSpan("login2Fa", ctx);
-        var dto = DtoUtil.validate(ctx, TwoFactorDto.class);
+        var dto = DtoUtil.validate(ctx, TwoFactorDto.class, span);
         if (dto == null) {
-            span.addEvent("InvalidTwoFactorFormat");
             span.end();
             return;
         }
-        span.addEvent("TwoFactorAccepted", Attributes.builder()
-                .put("login", dto.getLogin())
-                .build()
-        );
         var login = dto.getLogin();
         var user = users.getFirst(SYSTEM_ROLE, "login", login);
         if (user == null) {

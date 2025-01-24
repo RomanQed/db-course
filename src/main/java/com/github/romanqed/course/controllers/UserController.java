@@ -85,7 +85,7 @@ public final class UserController extends AuthBase {
 
     @Route(method = HandlerType.PATCH, route = "/")
     public void updateSelf(Context ctx) {
-        var dto = DtoUtil.parse(ctx, UserUpdateDto.class);
+        var dto = DtoUtil.parse(ctx, UserUpdateDto.class, null);
         if (dto == null) {
             return;
         }
@@ -104,7 +104,7 @@ public final class UserController extends AuthBase {
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
         int id = ctx.pathParamAsClass("id", Integer.class).get();
-        var dto = DtoUtil.parse(ctx, UserUpdateDto.class);
+        var dto = DtoUtil.parse(ctx, UserUpdateDto.class, null);
         if (dto == null) {
             return;
         }

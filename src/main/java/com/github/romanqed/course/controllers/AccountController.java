@@ -42,7 +42,7 @@ public final class AccountController extends AuthBase {
 
     @Route(method = HandlerType.POST)
     public void post(Context ctx) {
-        var dto = DtoUtil.validate(ctx, AccountDto.class);
+        var dto = DtoUtil.validate(ctx, AccountDto.class, null);
         if (dto == null) {
             return;
         }
@@ -64,7 +64,7 @@ public final class AccountController extends AuthBase {
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var dto = DtoUtil.parse(ctx, AccountDto.class);
+        var dto = DtoUtil.parse(ctx, AccountDto.class, null);
         if (dto == null) {
             return;
         }
