@@ -46,7 +46,7 @@ public final class TransactionController extends AuthBase {
     @Route(method = HandlerType.GET, route = "/{id}")
     public void get(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var found = Util.seeOwned(ctx, this, transactions, id);
+        var found = Util.seeOwned(ctx, this, transactions, id, null);
         if (found == null) {
             return;
         }
@@ -120,7 +120,7 @@ public final class TransactionController extends AuthBase {
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var transaction = Util.seeOwned(ctx, this, transactions, id);
+        var transaction = Util.seeOwned(ctx, this, transactions, id, null);
         if (transaction == null) {
             return;
         }

@@ -27,20 +27,24 @@ final class Util {
         span.addEvent("Deleted");
     }
 
-    static <T extends Owned> T seeOwned(Context ctx, AuthBase auth, Repository<T> repository, int id) {
+    static <T extends Owned> T seeOwned(Context ctx, AuthBase auth, Repository<T> repository, int id, Span span) {
         var user = auth.getCheckedUser(ctx);
         if (user == null) {
+            span.addEvent("Unauthorized");
             return null;
         }
         var found = repository.get(USER_ROLE, id);
         if (found == null) {
             ctx.status(HttpStatus.NOT_FOUND);
+            span.addEvent("NotFound");
             return null;
         }
         if (user.getId() != found.getOwner() && !user.isAdmin()) {
             ctx.status(HttpStatus.FORBIDDEN);
+            span.addEvent("NotOwnedByUser");
             return null;
         }
+        span.addEvent("SeeOwned");
         return found;
     }
 }

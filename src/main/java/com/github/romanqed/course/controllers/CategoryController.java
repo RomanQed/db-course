@@ -40,9 +40,7 @@ public final class CategoryController extends AuthBase {
         super(provider, users);
         this.categories = categories;
         this.transactions = transactions;
-        this.tracer = telemetry.getTracer(
-                "com.github.romanqed.course.controllers.CategoryController"
-        );
+        this.tracer = telemetry.getTracer("com.github.romanqed.course.controllers.CategoryController");
     }
 
     private Span startSpan(String name, Context ctx) {

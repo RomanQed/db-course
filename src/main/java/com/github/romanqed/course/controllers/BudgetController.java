@@ -61,7 +61,7 @@ public final class BudgetController extends AuthBase {
     @Route(method = HandlerType.GET, route = "/{id}/status")
     public void status(Context ctx) throws SQLException {
         int id = ctx.pathParamAsClass("id", Integer.class).get();
-        var found = Util.seeOwned(ctx, this, budgets, id);
+        var found = Util.seeOwned(ctx, this, budgets, id, null);
         if (found == null) {
             return;
         }
@@ -72,7 +72,7 @@ public final class BudgetController extends AuthBase {
     @Route(method = HandlerType.GET, route = "/{id}")
     public void get(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var found = Util.seeOwned(ctx, this, budgets, id);
+        var found = Util.seeOwned(ctx, this, budgets, id, null);
         if (found == null) {
             return;
         }
@@ -115,7 +115,7 @@ public final class BudgetController extends AuthBase {
     }
 
     private void updateBudget(Context ctx, int id, Integer currency, String description, Double value) {
-        var budget = Util.seeOwned(ctx, this, budgets, id);
+        var budget = Util.seeOwned(ctx, this, budgets, id, null);
         if (budget == null) {
             return;
         }
@@ -155,7 +155,7 @@ public final class BudgetController extends AuthBase {
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
         var id = ctx.pathParamAsClass("id", Integer.class).get();
-        var budget = Util.seeOwned(ctx, this, budgets, id);
+        var budget = Util.seeOwned(ctx, this, budgets, id, null);
         if (budget == null) {
             return;
         }

@@ -29,9 +29,7 @@ public final class CurrencyController extends AuthBase {
                               OpenTelemetry telemetry) {
         super(provider, users);
         this.currencies = currencies;
-        this.tracer = telemetry.getTracer(
-                "com.github.romanqed.course.controllers.CurrencyController"
-        );
+        this.tracer = telemetry.getTracer("com.github.romanqed.course.controllers.CurrencyController");
     }
 
     private Span startSpan(String name, Context ctx) {

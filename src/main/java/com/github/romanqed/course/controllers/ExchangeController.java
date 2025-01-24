@@ -36,9 +36,7 @@ public final class ExchangeController extends AuthBase {
         super(provider, users);
         this.exchanges = exchanges;
         this.currencies = currencies;
-        this.tracer = telemetry.getTracer(
-                "com.github.romanqed.course.controllers.ExchangeController"
-        );
+        this.tracer = telemetry.getTracer("com.github.romanqed.course.controllers.ExchangeController");
     }
 
     private Span startSpan(String name, Context ctx) {

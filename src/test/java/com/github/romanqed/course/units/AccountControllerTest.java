@@ -6,13 +6,17 @@ import com.github.romanqed.course.dto.AccountDto;
 import com.github.romanqed.course.models.Account;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public final class AccountControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testGet() {
@@ -34,8 +38,10 @@ public final class AccountControllerTest {
                 return acc;
             }
         };
-        var ct = new AccountController(jwt, users, acs, null);
+        var ct = new AccountController(jwt, users, acs, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/accounts/1")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -49,8 +55,10 @@ public final class AccountControllerTest {
     @Test
     public void testGetUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new AccountController(jwt, null, null, null);
+        var ct = new AccountController(jwt, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/accounts/1")
                 .withPath("id", 1)
                 .build();
 
@@ -84,12 +92,14 @@ public final class AccountControllerTest {
                 return id == 1;
             }
         };
-        var ct = new AccountController(jwt, users, acs, curs);
+        var ct = new AccountController(jwt, users, acs, curs, TELEMETRY);
         var dto = new AccountDto();
         dto.setDescription("descr");
         dto.setCurrency(1);
         dto.setValue(151.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/accounts")
                 .withAuth()
                 .withBody(dto)
                 .build();
@@ -111,12 +121,14 @@ public final class AccountControllerTest {
     @Test
     public void testPostUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new AccountController(jwt, null, null, null);
+        var ct = new AccountController(jwt, null, null, null, TELEMETRY);
         var dto = new AccountDto();
         dto.setDescription("descr");
         dto.setCurrency(1);
         dto.setValue(15.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/accounts")
                 .withBody(dto)
                 .build();
 
@@ -164,11 +176,13 @@ public final class AccountControllerTest {
                 return id == 1 || id == 2;
             }
         };
-        var ct = new AccountController(jwt, users, acs, curs);
+        var ct = new AccountController(jwt, users, acs, curs, TELEMETRY);
         var dto = new AccountDto();
         dto.setDescription("descr");
         dto.setCurrency(2);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/accounts/1014")
                 .withPath("id", 1014)
                 .withAuth()
                 .withBody(dto)
@@ -187,12 +201,14 @@ public final class AccountControllerTest {
     @Test
     public void testUpdateUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new AccountController(jwt, null, null, null);
+        var ct = new AccountController(jwt, null, null, null, TELEMETRY);
         var dto = new AccountDto();
         dto.setDescription("descr");
         dto.setCurrency(1);
         dto.setValue(15.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/accounts/1")
                 .withPath("id", 1)
                 .withBody(dto)
                 .build();
@@ -232,8 +248,10 @@ public final class AccountControllerTest {
                 id = key;
             }
         };
-        var ct = new AccountController(jwt, users, acs, null);
+        var ct = new AccountController(jwt, users, acs, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/accounts/13")
                 .withAuth()
                 .withPath("id", 13)
                 .build();
@@ -247,8 +265,10 @@ public final class AccountControllerTest {
     @Test
     public void testDeleteUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new AccountController(jwt, null, null, null);
+        var ct = new AccountController(jwt, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/accounts/1")
                 .withPath("id", 1)
                 .build();
 
