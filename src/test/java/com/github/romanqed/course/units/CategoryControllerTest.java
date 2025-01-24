@@ -6,7 +6,10 @@ import com.github.romanqed.course.dto.NameDto;
 import com.github.romanqed.course.models.Category;
 import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class CategoryControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testListTransactions() {
@@ -43,8 +47,10 @@ public final class CategoryControllerTest {
                 return lst;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, trs);
+        var ct = new CategoryController(jwt, users, cats, trs, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/categories/2/transactions")
                 .withQuery("from", "2021-01-01")
                 .withAuth()
                 .withPath("id", 2)
@@ -74,8 +80,10 @@ public final class CategoryControllerTest {
                 return ret;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/categories/2/transactions")
                 .withQuery("from", "2021-01-01")
                 .withQuery("to", "2020-01-01")
                 .withAuth()
@@ -97,8 +105,10 @@ public final class CategoryControllerTest {
                 return ret;
             }
         };
-        var ct = new CategoryController(null, null, cats, null);
+        var ct = new CategoryController(null, null, cats, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/categories/2")
                 .withPath("id", 10)
                 .build();
 
@@ -111,8 +121,10 @@ public final class CategoryControllerTest {
     @Test
     public void testGetNotExisting() {
         var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(null, null, cats, null);
+        var ct = new CategoryController(null, null, cats, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/categories/10")
                 .withPath("id", 10)
                 .build();
 
@@ -130,8 +142,8 @@ public final class CategoryControllerTest {
                 return lst;
             }
         };
-        var ct = new CategoryController(null, null, cats, null);
-        var ctx = MockUtil.mockCtx();
+        var ct = new CategoryController(null, null, cats, null, TELEMETRY);
+        var ctx = MockUtil.mockCtx(HandlerType.GET, "/categories");
 
         ct.find(ctx.mock);
 
@@ -158,10 +170,12 @@ public final class CategoryControllerTest {
                 cat = model;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/categories")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -182,10 +196,12 @@ public final class CategoryControllerTest {
             }
         };
         var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/categories")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -221,10 +237,12 @@ public final class CategoryControllerTest {
                 cat = model;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcat2");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/categories/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -247,10 +265,12 @@ public final class CategoryControllerTest {
             }
         };
         var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcat1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/categories/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -285,8 +305,10 @@ public final class CategoryControllerTest {
                 return id == 14;
             }
         };
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/categories/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();
@@ -307,8 +329,10 @@ public final class CategoryControllerTest {
             }
         };
         var cats = new RepositoryImpl<Category>();
-        var ct = new CategoryController(jwt, users, cats, null);
+        var ct = new CategoryController(jwt, users, cats, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/categories/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();

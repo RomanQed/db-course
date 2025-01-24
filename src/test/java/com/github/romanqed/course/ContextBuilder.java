@@ -1,5 +1,6 @@
 package com.github.romanqed.course;
 
+import io.javalin.http.HandlerType;
 import io.javalin.validation.Params;
 import io.javalin.validation.Validator;
 import org.mockito.Mockito;
@@ -24,6 +25,18 @@ public final class ContextBuilder {
         if (wrapper == null) {
             wrapper = supplier.get();
         }
+    }
+
+    public ContextBuilder withMethod(HandlerType method) {
+        check();
+        Mockito.when(wrapper.mock.method()).thenReturn(method);
+        return this;
+    }
+
+    public ContextBuilder withURI(String path) {
+        check();
+        Mockito.when(wrapper.mock.path()).thenReturn(path);
+        return this;
     }
 
     public ContextBuilder withBody(Object body) {

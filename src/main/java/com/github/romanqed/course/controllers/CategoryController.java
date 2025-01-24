@@ -13,6 +13,11 @@ import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -25,34 +30,55 @@ public final class CategoryController extends AuthBase {
     private static final DateFormat INPUT = new SimpleDateFormat("yyyy-MM-dd");
     private final Repository<Category> categories;
     private final Repository<Transaction> transactions;
+    private final Tracer tracer;
 
     public CategoryController(JwtProvider<JwtUser> provider,
                               Repository<User> users,
                               Repository<Category> categories,
-                              Repository<Transaction> transactions) {
+                              Repository<Transaction> transactions,
+                              OpenTelemetry telemetry) {
         super(provider, users);
         this.categories = categories;
         this.transactions = transactions;
+        this.tracer = telemetry.getTracer(
+                "com.github.romanqed.course.controllers.CategoryController"
+        );
     }
 
-    private Range parseRange(Context ctx) {
+    private Span startSpan(String name, Context ctx) {
+        return tracer.spanBuilder("CategoryController#" + name)
+                .setAttribute("http.method", ctx.method().toString())
+                .setAttribute("http.route", ctx.path())
+                .setSpanKind(SpanKind.SERVER)
+                .startSpan();
+    }
+
+    private Range parseRange(Context ctx, Span span) {
         var rawFrom = ctx.queryParam("from");
         var rawTo = ctx.queryParam("to");
         var from = (Date) null;
         var to = (Date) null;
         try {
             if (rawFrom != null) {
+                span.addEvent("FromParse");
                 from = INPUT.parse(rawFrom);
             }
             if (rawTo != null) {
+                span.addEvent("ToParse");
                 to = INPUT.parse(rawTo);
             }
         } catch (ParseException e) {
             ctx.status(HttpStatus.BAD_REQUEST);
+            span.addEvent("ParseFailed");
             return null;
         }
         if (from != null && to != null && to.before(from)) {
             ctx.status(HttpStatus.BAD_REQUEST);
+            span.addEvent("InvalidRange", Attributes.builder()
+                    .put("from", from.toString())
+                    .put("to", to.toString())
+                    .build()
+            );
             return null;
         }
         return new Range(from, to);
@@ -60,19 +86,29 @@ public final class CategoryController extends AuthBase {
 
     @Route(method = HandlerType.GET, route = "/{id}/transactions")
     public void listTransactions(Context ctx) {
+        var span = startSpan("listTransactions", ctx);
         var id = ctx.pathParamAsClass("id", Integer.class).get();
         var user = getCheckedUser(ctx);
         if (user == null) {
+            span.addEvent("Unauthorized");
+            span.end();
             return;
         }
+        span.addEvent("GotUser", Attributes.builder()
+                .put("login", user.getLogin())
+                .build()
+        );
         var found = categories.get(USER_ROLE, id);
         if (found == null) {
+            span.addEvent("CategoryNotFound");
+            span.end();
             ctx.status(HttpStatus.NOT_FOUND);
             return;
         }
         // Get date range from query params
-        var range = parseRange(ctx);
+        var range = parseRange(ctx, span);
         if (range == null) {
+            span.end();
             return;
         }
         var where = "category = " + id + " and owner = " + user.getId() + " ";
@@ -85,8 +121,14 @@ public final class CategoryController extends AuthBase {
         } else if (to != null) {
             where += "and _timestamp < " + to;
         }
+        span.addEvent("QueryPrepared", Attributes.builder()
+                .put("query", where)
+                .build()
+        );
         var result = transactions.get(USER_ROLE, where);
         ctx.json(result);
+        span.addEvent("TransactionsListed");
+        span.end();
     }
 
     @Route(method = HandlerType.GET, route = "/{id}")
@@ -102,50 +144,74 @@ public final class CategoryController extends AuthBase {
 
     @Route(method = HandlerType.GET, route = "/")
     public void find(Context ctx) {
+        var span = startSpan("find", ctx);
         var name = ctx.queryParam("name");
         if (name == null) {
             ctx.json(categories.get(USER_ROLE));
+            span.addEvent("SelectAllCategories");
+            span.end();
             return;
         }
         var found = categories.get(USER_ROLE, "name like '%" + name + "%'");
         ctx.json(found);
+        span.addEvent("SelectCategoriesWithFilter", Attributes.builder()
+                .put("name", name)
+                .build()
+        );
+        span.end();
     }
 
     @Route(method = HandlerType.POST)
     public void post(Context ctx) {
+        var span = startSpan("post", ctx);
         var dto = DtoUtil.validate(ctx, NameDto.class);
         if (dto == null) {
+            span.addEvent("MissingName");
+            span.end();
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, span)) {
+            span.end();
             return;
         }
         var category = Category.of(dto.getName());
         categories.put(ADMIN_ROLE, category);
         ctx.json(category);
+        span.addEvent("CategoryCreated");
+        span.end();
     }
 
     @Route(method = HandlerType.PATCH, route = "/{id}")
     public void update(Context ctx) {
+        var span = startSpan("update", ctx);
         var id = ctx.pathParamAsClass("id", Integer.class).get();
         var dto = DtoUtil.validate(ctx, NameDto.class);
         if (dto == null) {
+            span.addEvent("MissingName");
+            span.end();
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, span)) {
+            span.end();
             return;
         }
         var found = categories.get(ADMIN_ROLE, id);
         if (found == null) {
             ctx.status(HttpStatus.NOT_FOUND);
+            span.addEvent("CategoryNotFound");
+            span.end();
             return;
         }
         found.setName(dto.getName());
         categories.update(ADMIN_ROLE, found);
+        span.addEvent("CategoryUpdated");
+        span.end();
     }
 
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
-        Util.adminDelete(ctx, this, categories);
+        var span = startSpan("delete", ctx);
+        Util.adminDelete(ctx, this, categories, span);
+        span.end();
     }
 }

@@ -70,7 +70,7 @@ public final class ExchangeController extends AuthBase {
         if (dto == null) {
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, null)) {
             return;
         }
         var from = dto.getFrom();
@@ -111,7 +111,7 @@ public final class ExchangeController extends AuthBase {
             ctx.json(new Response("Invalid factor"));
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, null)) {
             return;
         }
         var found = exchanges.get(ADMIN_ROLE, id);
@@ -138,7 +138,7 @@ public final class ExchangeController extends AuthBase {
             ctx.status(HttpStatus.NOT_FOUND);
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, null)) {
             return;
         }
         exchanges.delete(ADMIN_ROLE, id);

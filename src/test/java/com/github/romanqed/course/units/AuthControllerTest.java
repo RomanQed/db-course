@@ -6,6 +6,7 @@ import com.github.romanqed.course.dto.Credentials;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
 import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,8 @@ public final class AuthControllerTest {
         creds.setLogin("user");
         creds.setPassword("pswd");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/register")
                 .withBody(creds)
                 .build();
 
@@ -61,7 +64,7 @@ public final class AuthControllerTest {
     @Test
     public void testRegisterNoBody() {
         var ct = new AuthController(null, null, null, null, TELEMETRY);
-        var ctx = MockUtil.mockCtx();
+        var ctx = MockUtil.mockCtx(HandlerType.POST, "/register");
 
         ct.register(ctx.mock);
 
@@ -85,6 +88,8 @@ public final class AuthControllerTest {
         creds.setLogin("log");
         creds.setPassword("pass");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/login")
                 .withBody(creds)
                 .build();
 
@@ -99,7 +104,7 @@ public final class AuthControllerTest {
     @Test
     public void testLoginNoBody() {
         var ct = new AuthController(null, null, null, null, TELEMETRY);
-        var ctx = MockUtil.mockCtx();
+        var ctx = MockUtil.mockCtx(HandlerType.POST, "/login");
 
         ct.login(ctx.mock);
 

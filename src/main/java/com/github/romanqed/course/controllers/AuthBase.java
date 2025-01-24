@@ -8,6 +8,7 @@ import com.github.romanqed.course.jwt.JwtUser;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.trace.Span;
 import javalinjwt.JavalinJWT;
 import kotlin.jvm.functions.Function2;
 
@@ -70,15 +71,18 @@ public class AuthBase {
         return getCheckedUser(ctx, (r, id) -> r.get(USER_ROLE, id));
     }
 
-    protected boolean checkAdmin(Context ctx) {
+    protected boolean checkAdmin(Context ctx, Span span) {
         var user = getCheckedUser(ctx);
         if (user == null) {
+            span.addEvent("Unauthorized");
             return false;
         }
         if (!user.isAdmin()) {
             ctx.status(HttpStatus.FORBIDDEN);
+            span.addEvent("UserNotAdmin");
             return false;
         }
+        span.addEvent("AdminCheckSucceeded");
         return true;
     }
 }

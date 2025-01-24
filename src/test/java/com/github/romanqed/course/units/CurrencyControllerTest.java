@@ -5,6 +5,7 @@ import com.github.romanqed.course.controllers.CurrencyController;
 import com.github.romanqed.course.dto.NameDto;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +60,7 @@ public final class CurrencyControllerTest {
             }
         };
         var ct = new CurrencyController(null, null, curs);
-        var ctx = MockUtil.mockCtx();
+        var ctx = MockUtil.mockCtx(HandlerType.GET, "/currencies");
 
         ct.find(ctx.mock);
 

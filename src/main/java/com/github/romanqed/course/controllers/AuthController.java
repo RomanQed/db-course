@@ -69,17 +69,17 @@ public final class AuthController {
         return jwt.generateToken(jwtUser);
     }
 
-    private Span startSpan(String name, String uri) {
-        return tracer.spanBuilder(name)
-                .setAttribute("http.method", "POST")
-                .setAttribute("http.route", uri)
+    private Span startSpan(String name, Context ctx) {
+        return tracer.spanBuilder("AuthController#" + name)
+                .setAttribute("http.method", ctx.method().toString())
+                .setAttribute("http.route", ctx.path())
                 .setSpanKind(SpanKind.SERVER)
                 .startSpan();
     }
 
     @Route(method = HandlerType.POST, route = "/register")
     public void register(Context ctx) {
-        var span = startSpan("register", "/register");
+        var span = startSpan("register", ctx);
         var credentials = DtoUtil.validate(ctx, Credentials.class);
         if (credentials == null) {
             span.addEvent("InvalidCredentialFormat");
@@ -110,7 +110,7 @@ public final class AuthController {
 
     @Route(method = HandlerType.POST, route = "/login")
     public void login(Context ctx) {
-        var span = startSpan("login", "/login");
+        var span = startSpan("login", ctx);
         var credentials = DtoUtil.validate(ctx, Credentials.class);
         if (credentials == null) {
             span.addEvent("InvalidCredentialFormat");
@@ -164,7 +164,7 @@ public final class AuthController {
 
     @Route(method = HandlerType.POST, route = "/2fa")
     public void login2Fa(Context ctx) {
-        var span = startSpan("login2Fa", "/2fa");
+        var span = startSpan("login2Fa", ctx);
         var dto = DtoUtil.validate(ctx, TwoFactorDto.class);
         if (dto == null) {
             span.addEvent("InvalidTwoFactorFormat");

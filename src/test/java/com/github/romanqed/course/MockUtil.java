@@ -5,6 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.romanqed.course.jwt.JwtProvider;
 import com.github.romanqed.course.jwt.JwtUser;
 import io.javalin.http.Context;
+import io.javalin.http.HandlerType;
 import org.mockito.Mockito;
 
 import java.util.Optional;
@@ -32,8 +33,24 @@ public final class MockUtil {
         };
     }
 
-    public static ContextWrapper mockCtx() {
+    private static ContextWrapper mockCtx() {
         var mock = Mockito.mock(Context.class);
+        var ret = new ContextWrapper(mock);
+        Mockito.doAnswer(inv -> {
+            ret.status = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).status(Mockito.any());
+        Mockito.doAnswer(inv -> {
+            ret.body = inv.getArgument(0);
+            return inv.getMock();
+        }).when(mock).json(Mockito.any());
+        return ret;
+    }
+
+    public static ContextWrapper mockCtx(HandlerType method, String uri) {
+        var mock = Mockito.mock(Context.class);
+        Mockito.when(mock.method()).thenReturn(method);
+        Mockito.when(mock.path()).thenReturn(uri);
         var ret = new ContextWrapper(mock);
         Mockito.doAnswer(inv -> {
             ret.status = inv.getArgument(0);

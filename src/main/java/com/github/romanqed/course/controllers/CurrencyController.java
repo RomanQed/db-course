@@ -50,7 +50,7 @@ public final class CurrencyController extends AuthBase {
         if (dto == null) {
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, null)) {
             return;
         }
         var category = Currency.of(dto.getName());
@@ -65,7 +65,7 @@ public final class CurrencyController extends AuthBase {
         if (dto == null) {
             return;
         }
-        if (!checkAdmin(ctx)) {
+        if (!checkAdmin(ctx, null)) {
             return;
         }
         var found = currencies.get(ADMIN_ROLE, id);
@@ -79,6 +79,6 @@ public final class CurrencyController extends AuthBase {
 
     @Route(method = HandlerType.DELETE, route = "/{id}")
     public void delete(Context ctx) {
-        Util.adminDelete(ctx, this, currencies);
+        Util.adminDelete(ctx, this, currencies, null);
     }
 }
