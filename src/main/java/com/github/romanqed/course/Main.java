@@ -51,6 +51,7 @@ public final class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             javalin.stop();
             postgres.close();
+            System.exit(0);
         }));
     }
 

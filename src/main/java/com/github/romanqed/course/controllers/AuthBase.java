@@ -12,7 +12,6 @@ import javalinjwt.JavalinJWT;
 import kotlin.jvm.functions.Function2;
 
 public class AuthBase {
-    protected static final String SYSTEM_ROLE = "_service";
     protected static final String USER_ROLE = "_user";
     protected static final String ADMIN_ROLE = "_admin";
 

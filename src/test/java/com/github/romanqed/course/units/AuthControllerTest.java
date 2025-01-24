@@ -5,13 +5,16 @@ import com.github.romanqed.course.controllers.AuthController;
 import com.github.romanqed.course.dto.Credentials;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public final class AuthControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testRegister() {
@@ -33,7 +36,7 @@ public final class AuthControllerTest {
                 this.model = model;
             }
         };
-        var ct = new AuthController(users, jwt, new EncoderImpl(), null);
+        var ct = new AuthController(users, jwt, new EncoderImpl(), null, TELEMETRY);
         var creds = new Credentials();
         creds.setLogin("user");
         creds.setPassword("pswd");
@@ -57,7 +60,7 @@ public final class AuthControllerTest {
 
     @Test
     public void testRegisterNoBody() {
-        var ct = new AuthController(null, null, null, null);
+        var ct = new AuthController(null, null, null, null, TELEMETRY);
         var ctx = MockUtil.mockCtx();
 
         ct.register(ctx.mock);
@@ -77,7 +80,7 @@ public final class AuthControllerTest {
                 return User.of((String) value, "pass");
             }
         };
-        var ct = new AuthController(users, jwt, new EncoderImpl(), null);
+        var ct = new AuthController(users, jwt, new EncoderImpl(), null, TELEMETRY);
         var creds = new Credentials();
         creds.setLogin("log");
         creds.setPassword("pass");
@@ -95,7 +98,7 @@ public final class AuthControllerTest {
 
     @Test
     public void testLoginNoBody() {
-        var ct = new AuthController(null, null, null, null);
+        var ct = new AuthController(null, null, null, null, TELEMETRY);
         var ctx = MockUtil.mockCtx();
 
         ct.login(ctx.mock);

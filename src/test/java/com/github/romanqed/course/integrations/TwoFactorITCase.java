@@ -8,6 +8,7 @@ import com.github.romanqed.course.email.LocalMailerStub;
 import com.github.romanqed.course.models.User;
 import com.google.gson.Gson;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -83,7 +84,8 @@ public final class TwoFactorITCase {
                 userRepo,
                 jwt,
                 encoder,
-                new LocalMailerStub()
+                new LocalMailerStub(),
+                OpenTelemetry.noop()
         );
     }
 

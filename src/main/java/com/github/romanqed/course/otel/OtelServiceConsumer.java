@@ -10,17 +10,11 @@ import io.opentelemetry.api.OpenTelemetry;
 public final class OtelServiceConsumer implements ServiceProviderConsumer {
 
     @Override
-    public void pre(ServiceProviderBuilder builder) throws Throwable {
-        var endpoint = System.getenv("JAEGER_ENDPOINT");
-        if (endpoint == null) {
-            builder.addInstance(OpenTelemetry.class, OpenTelemetry.noop());
-            return;
-        }
-
+    public void pre(ServiceProviderBuilder builder) {
+        builder.addInstance(OpenTelemetry.class, OtelUtil.createOtel());
     }
 
     @Override
     public void post(ServiceProvider provider) throws Throwable {
-
     }
 }

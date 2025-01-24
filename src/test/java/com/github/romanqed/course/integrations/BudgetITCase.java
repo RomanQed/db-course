@@ -12,6 +12,7 @@ import com.github.romanqed.course.dto.TransactionDto;
 import com.github.romanqed.course.models.*;
 import com.github.romanqed.course.postgres.PostgresRepository;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -102,7 +103,7 @@ public final class BudgetITCase {
         );
         // Init controllers
         var jwt = Util.createJwtProvider();
-        auth = new AuthController(userRepo, jwt, encoder, null);
+        auth = new AuthController(userRepo, jwt, encoder, null, OpenTelemetry.noop());
         transactions = new TransactionController(
                 jwt,
                 connection,

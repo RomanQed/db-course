@@ -6,6 +6,7 @@ import com.github.romanqed.course.controllers.UserController;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,8 @@ public final class AuthorizationITCase {
                 userRepo,
                 jwt,
                 encoder,
-                null
+                null,
+                OpenTelemetry.noop()
         );
         users = Util.createUserController(jwt, encoder, userRepo);
     }

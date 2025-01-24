@@ -12,6 +12,11 @@ import com.github.romanqed.course.models.User;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +31,14 @@ public final class AuthController {
     private final JwtProvider<JwtUser> jwt;
     private final Encoder encoder;
     private final Mailer mailer;
+    private final Tracer tracer;
 
-    public AuthController(Repository<User> users, JwtProvider<JwtUser> jwt, Encoder encoder, Mailer mailer) {
+    public AuthController(Repository<User> users,
+                          JwtProvider<JwtUser> jwt,
+                          Encoder encoder,
+                          Mailer mailer,
+                          OpenTelemetry telemetry) {
+        this.tracer = telemetry.getTracer("com.github.romanqed.course.controllers.AuthController");
         this.users = users;
         this.jwt = jwt;
         this.encoder = encoder;
@@ -58,47 +69,81 @@ public final class AuthController {
         return jwt.generateToken(jwtUser);
     }
 
+    private Span startSpan(String name, String uri) {
+        return tracer.spanBuilder(name)
+                .setAttribute("http.method", "POST")
+                .setAttribute("http.route", uri)
+                .setSpanKind(SpanKind.SERVER)
+                .startSpan();
+    }
+
     @Route(method = HandlerType.POST, route = "/register")
     public void register(Context ctx) {
+        var span = startSpan("register", "/register");
         var credentials = DtoUtil.validate(ctx, Credentials.class);
         if (credentials == null) {
+            span.addEvent("InvalidCredentialFormat");
+            span.end();
             return;
         }
+        span.addEvent("CredentialsAccepted", Attributes.builder()
+                .put("login", credentials.getLogin())
+                .build()
+        );
         var login = credentials.getLogin();
         if (users.exists(SYSTEM_ROLE, "login", login)) {
             ctx.status(HttpStatus.CONFLICT);
             ctx.json(new Response("User with the specified login already exists"));
+            span.addEvent("UserAlreadyExists");
+            span.end();
             return;
         }
         var hashed = encoder.encode(credentials.getPassword());
         var user = User.of(login, hashed);
+        span.addEvent("UserPushing");
         users.put(SYSTEM_ROLE, user);
+        span.addEvent("UserPushed");
         var token = makeToken(user);
         ctx.json(new Token(token));
+        span.end();
     }
 
     @Route(method = HandlerType.POST, route = "/login")
     public void login(Context ctx) {
+        var span = startSpan("login", "/login");
         var credentials = DtoUtil.validate(ctx, Credentials.class);
         if (credentials == null) {
+            span.addEvent("InvalidCredentialFormat");
+            span.end();
             return;
         }
+        span.addEvent("CredentialsAccepted", Attributes.builder()
+                .put("login", credentials.getLogin())
+                .build()
+        );
         var login = credentials.getLogin();
         var user = users.getFirst(SYSTEM_ROLE, "login", login);
         if (user == null) {
             ctx.status(HttpStatus.NOT_FOUND);
             ctx.json(new Response("Unknown user"));
+            span.addEvent("UnknownUser");
+            span.end();
             return;
         }
         if (!encoder.matches(credentials.getPassword(), user.getPassword())) {
             ctx.status(HttpStatus.UNAUTHORIZED);
             ctx.json(new Response("Invalid credentials"));
+            span.addEvent("InvalidCredentials");
+            span.end();
             return;
         }
         if (user.isTwoFactor()) {
+            span.addEvent("TwoFactorAuthStart");
             if (mailer == null) {
                 ctx.result("Incorrect server configuration, contact with admin");
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+                span.addEvent("TwoFactorAuthInvalidMailer");
+                span.end();
                 return;
             }
             synchronized (lock) {
@@ -109,22 +154,34 @@ public final class AuthController {
                 });
             }
             ctx.json(new Token());
+            span.addEvent("TwoFactorAuthEnd");
         } else {
             ctx.json(new Token(makeToken(user)));
+            span.addEvent("UserAuthorized");
         }
+        span.end();
     }
 
     @Route(method = HandlerType.POST, route = "/2fa")
     public void login2Fa(Context ctx) {
+        var span = startSpan("login2Fa", "/2fa");
         var dto = DtoUtil.validate(ctx, TwoFactorDto.class);
         if (dto == null) {
+            span.addEvent("InvalidTwoFactorFormat");
+            span.end();
             return;
         }
+        span.addEvent("TwoFactorAccepted", Attributes.builder()
+                .put("login", dto.getLogin())
+                .build()
+        );
         var login = dto.getLogin();
         var user = users.getFirst(SYSTEM_ROLE, "login", login);
         if (user == null) {
             ctx.status(HttpStatus.NOT_FOUND);
             ctx.json(new Response("Unknown user"));
+            span.addEvent("UnknownUser");
+            span.end();
             return;
         }
         synchronized (lock) {
@@ -133,15 +190,21 @@ public final class AuthController {
             if (found == null) {
                 ctx.status(HttpStatus.NOT_FOUND);
                 ctx.json(new Response("2FA session dies"));
+                span.addEvent("2FASessionNotFound");
+                span.end();
                 return;
             }
             if (!found.getCode().equals(dto.getCode())) {
                 ctx.status(HttpStatus.FORBIDDEN);
                 ctx.json(new Response("Invalid 2FA code"));
+                span.addEvent("Invalid2FACode");
+                span.end();
                 return;
             }
             entries.remove(id);
             ctx.json(new Token(makeToken(user)));
+            span.addEvent("UserAuthorized");
+            span.end();
         }
     }
 }
