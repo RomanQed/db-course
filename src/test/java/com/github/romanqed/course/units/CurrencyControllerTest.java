@@ -5,8 +5,10 @@ import com.github.romanqed.course.controllers.CurrencyController;
 import com.github.romanqed.course.dto.NameDto;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class CurrencyControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testGet() {
@@ -26,8 +29,10 @@ public final class CurrencyControllerTest {
                 return ret;
             }
         };
-        var ct = new CurrencyController(null, null, curs);
+        var ct = new CurrencyController(null, null, curs, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/currencies/10")
                 .withPath("id", 10)
                 .build();
 
@@ -40,8 +45,10 @@ public final class CurrencyControllerTest {
     @Test
     public void testGetNotExisting() {
         var curs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(null, null, curs);
+        var ct = new CurrencyController(null, null, curs, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/currencies/10")
                 .withPath("id", 10)
                 .build();
 
@@ -59,7 +66,7 @@ public final class CurrencyControllerTest {
                 return lst;
             }
         };
-        var ct = new CurrencyController(null, null, curs);
+        var ct = new CurrencyController(null, null, curs, TELEMETRY);
         var ctx = MockUtil.mockCtx(HandlerType.GET, "/currencies");
 
         ct.find(ctx.mock);
@@ -87,10 +94,12 @@ public final class CurrencyControllerTest {
                 c = model;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcur1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/currencies")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -111,10 +120,12 @@ public final class CurrencyControllerTest {
             }
         };
         var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tcur1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/currencies")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -150,10 +161,12 @@ public final class CurrencyControllerTest {
                 c = model;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tc2");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/currencies/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -176,10 +189,12 @@ public final class CurrencyControllerTest {
             }
         };
         var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var dto = new NameDto();
         dto.setName("tc1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/currencies/13")
                 .withPath("id", 13)
                 .withBody(dto)
                 .withAuth()
@@ -214,8 +229,10 @@ public final class CurrencyControllerTest {
                 return id == 14;
             }
         };
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/currencies/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();
@@ -236,8 +253,10 @@ public final class CurrencyControllerTest {
             }
         };
         var cs = new RepositoryImpl<Currency>();
-        var ct = new CurrencyController(jwt, users, cs);
+        var ct = new CurrencyController(jwt, users, cs, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/currencies/14")
                 .withPath("id", 14)
                 .withAuth()
                 .build();

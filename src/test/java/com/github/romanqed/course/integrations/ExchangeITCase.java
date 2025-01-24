@@ -50,8 +50,9 @@ public final class ExchangeITCase {
         var jwt = Util.createJwtProvider();
         var encoder = Util.createEncoder();
         var userRepo = Util.initUserRepo(connection, encoder);
-        auth = new AuthController(userRepo, jwt, encoder, null, OpenTelemetry.noop());
-        currencies = new CurrencyController(jwt, userRepo, curRepo);
+        var telemetry = OpenTelemetry.noop();
+        auth = new AuthController(userRepo, jwt, encoder, null, telemetry);
+        currencies = new CurrencyController(jwt, userRepo, curRepo, telemetry);
         exchanges = new ExchangeController(jwt, userRepo, exRepo, curRepo);
     }
 
