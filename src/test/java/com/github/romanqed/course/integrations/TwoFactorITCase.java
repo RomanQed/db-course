@@ -17,8 +17,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,9 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public final class TwoFactorITCase {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
-//    private static final URI SMTP_FAKE_SERVER = URI.create(System.getenv("SMTP_FAKE_SERVER"));
-private static final URI SMTP_FAKE_SERVER = URI.create("http://localhost");
-    private static final String EMAIL_PASSWORD = System.getenv("EMAIL_PASSWORD");
+    private static final URI SMTP_FAKE_SERVER = URI.create(System.getenv("SMTP_FAKE_SERVER"));
     private static final Gson GSON = new Gson();
     private static String database;
     private static Connection connection;
@@ -70,65 +66,62 @@ private static final URI SMTP_FAKE_SERVER = URI.create("http://localhost");
 
     @BeforeAll
     public static void init() throws Throwable {
-//        database = Util.getRandomDb("auth");
-//        connection = Util.initDatabase(database, List.of(Util.TABLES, Util.ROLES));
-//        var encoder = Util.createEncoder();
-//        var jwt = Util.createJwtProvider();
-//        var userRepo = Util.initUserRepo(connection, encoder);
-//        var user = new User();
-//        user.setLogin("user");
-//        user.setPassword(encoder.encode("123"));
-//        user.setTwoFactor(true);
-//        email = getRandomUserEmail();
-//        user.setEmail(email);
-//        user.setAdmin(false);
-//        userRepo.put(Util.SYSTEM_ROLE, user);
-//        auth = new AuthController(
-//                userRepo,
-//                jwt,
-//                encoder,
-//                new LocalMailerStub()
-//        );
+        database = Util.getRandomDb("auth");
+        connection = Util.initDatabase(database, List.of(Util.TABLES, Util.ROLES));
+        var encoder = Util.createEncoder();
+        var jwt = Util.createJwtProvider();
+        var userRepo = Util.initUserRepo(connection, encoder);
+        var user = new User();
+        user.setLogin("user");
+        user.setPassword(encoder.encode("123"));
+        user.setTwoFactor(true);
+        email = getRandomUserEmail();
+        user.setEmail(email);
+        user.setAdmin(false);
+        userRepo.put(Util.SYSTEM_ROLE, user);
+        auth = new AuthController(
+                userRepo,
+                jwt,
+                encoder,
+                new LocalMailerStub()
+        );
     }
 
     @AfterAll
     public static void destroy() throws SQLException, IOException, InterruptedException {
-//        connection.close();
-//        Util.dropDatabase(database);
-//        if (emailId >= 0) {
-//            var req = HttpRequest.newBuilder()
-//                    .uri(SMTP_FAKE_SERVER.resolve("/api/emails/" + emailId))
-//                    .DELETE()
-//                    .build();
-//            CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
-//        }
+        connection.close();
+        Util.dropDatabase(database);
+        if (emailId >= 0) {
+            var req = HttpRequest.newBuilder()
+                    .uri(SMTP_FAKE_SERVER.resolve("/api/emails/" + emailId))
+                    .DELETE()
+                    .build();
+            CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+        }
     }
 
     @Test
     public void test() throws IOException, InterruptedException {
-        var writer = Files.newBufferedWriter(Path.of("out.txt"));
-        writer.write(EMAIL_PASSWORD);
-        writer.close();
-//        // Login
-//        var ctx = MockUtil.ctxBuilder()
-//                .withBody(Util.ofCreds("user", "123"))
-//                .build();
-//        auth.login(ctx.mock);
-//        assertEquals(HttpStatus.OK, ctx.status);
-//        var token = ((Token) ctx.body);
-//        assertTrue(token.getTwoFactor());
-//        // Get 2fa code from mail server
-//        var code = requestCode();
-//        // Login with code
-//        var dto = new TwoFactorDto();
-//        dto.setLogin("user");
-//        dto.setCode(code);
-//        ctx = MockUtil.ctxBuilder()
-//                .withBody(dto)
-//                .build();
-//        auth.login2Fa(ctx.mock);
-//        assertEquals(HttpStatus.OK, ctx.status);
-//        assertNotNull(((Token) ctx.body).getToken());
+        // Login
+        var ctx = MockUtil.ctxBuilder()
+                .withBody(Util.ofCreds("user", "123"))
+                .build();
+        auth.login(ctx.mock);
+        assertEquals(HttpStatus.OK, ctx.status);
+        var token = ((Token) ctx.body);
+        assertTrue(token.getTwoFactor());
+        // Get 2fa code from mail server
+        var code = requestCode();
+        // Login with code
+        var dto = new TwoFactorDto();
+        dto.setLogin("user");
+        dto.setCode(code);
+        ctx = MockUtil.ctxBuilder()
+                .withBody(dto)
+                .build();
+        auth.login2Fa(ctx.mock);
+        assertEquals(HttpStatus.OK, ctx.status);
+        assertNotNull(((Token) ctx.body).getToken());
     }
 
     private static final class Response {
