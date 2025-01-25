@@ -5,6 +5,7 @@ import com.github.romanqed.course.controllers.AuthController;
 import com.github.romanqed.course.controllers.UserController;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
@@ -31,7 +32,7 @@ public final class AuthorizationITCase {
         var encoder = Util.createEncoder();
         var jwt = Util.createJwtProvider();
         var userRepo = Util.initUserRepo(connection, encoder);
-        var telemetry = OpenTelemetry.noop();
+        var telemetry = OtelUtil.createOtel("AuthorizationITCase");
         auth = new AuthController(
                 userRepo,
                 jwt,

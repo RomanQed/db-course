@@ -5,3 +5,5 @@ services:
     build:
       context: .
       dockerfile: Unit.dockerfile
+    environment:
+      JAEGER_ENDPOINT: http://localhost:4317

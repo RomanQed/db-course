@@ -8,6 +8,7 @@ import com.github.romanqed.course.dto.ExchangeDto;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.Exchange;
+import com.github.romanqed.course.otel.OtelUtil;
 import com.github.romanqed.course.postgres.PostgresRepository;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -51,7 +52,7 @@ public final class ExchangeITCase {
         var jwt = Util.createJwtProvider();
         var encoder = Util.createEncoder();
         var userRepo = Util.initUserRepo(connection, encoder);
-        var telemetry = OpenTelemetry.noop();
+        var telemetry = OtelUtil.createOtel("ExchangeITCase");
         auth = new AuthController(userRepo, jwt, encoder, null, telemetry);
         currencies = new CurrencyController(jwt, userRepo, curRepo, telemetry);
         exchanges = new ExchangeController(jwt, userRepo, exRepo, curRepo, telemetry);

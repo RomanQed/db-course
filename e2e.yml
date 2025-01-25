@@ -22,6 +22,9 @@ services:
       dockerfile: E2E.dockerfile
     networks:
       e2en:
+    environment:
+      OTEL_SERVICE_NAME: DbCourseE2E
+      JAEGER_ENDPOINT: http://localhost:4317
     depends_on:
       pdb:
         condition: service_healthy

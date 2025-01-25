@@ -6,6 +6,7 @@ import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.dto.TwoFactorDto;
 import com.github.romanqed.course.email.LocalMailerStub;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
 import com.google.gson.Gson;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -86,7 +87,7 @@ public final class TwoFactorITCase {
                 jwt,
                 encoder,
                 new LocalMailerStub(),
-                OpenTelemetry.noop()
+                OtelUtil.createOtel("TwoFactorITCase")
         );
     }
 

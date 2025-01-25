@@ -36,3 +36,4 @@ services:
       DB_CONN: jdbc:postgresql://pdb:5432
       MAIL_SERVER: fakemail
       SMTP_FAKE_SERVER: http://fakemail:8080
+      JAEGER_ENDPOINT: http://localhost:4317
