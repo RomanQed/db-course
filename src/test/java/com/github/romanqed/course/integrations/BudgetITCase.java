@@ -103,7 +103,8 @@ public final class BudgetITCase {
         );
         // Init controllers
         var jwt = Util.createJwtProvider();
-        auth = new AuthController(userRepo, jwt, encoder, null, OpenTelemetry.noop());
+        var telemetry = OpenTelemetry.noop();
+        auth = new AuthController(userRepo, jwt, encoder, null, telemetry);
         transactions = new TransactionController(
                 jwt,
                 connection,
@@ -117,7 +118,8 @@ public final class BudgetITCase {
                 connection,
                 userRepo,
                 bdRepo,
-                curRepo
+                curRepo,
+                telemetry
         );
     }
 

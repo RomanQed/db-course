@@ -8,7 +8,10 @@ import com.github.romanqed.course.dto.BudgetStatus;
 import com.github.romanqed.course.models.Budget;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.postgresql.util.PGobject;
@@ -21,6 +24,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 public final class BudgetControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
 
     @Test
     public void testStatus() throws SQLException {
@@ -35,7 +39,7 @@ public final class BudgetControllerTest {
             }
 
             @Override
-            public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+            public <T> T getObject(int columnIndex, Class<T> type) {
                 return (T) obj;
             }
         };
@@ -64,8 +68,10 @@ public final class BudgetControllerTest {
                 return ret;
             }
         };
-        var ct = new BudgetController(jwt, conn, users, budgets, null);
+        var ct = new BudgetController(jwt, conn, users, budgets, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/budgets/1/status")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -114,8 +120,10 @@ public final class BudgetControllerTest {
                 return ret;
             }
         };
-        var ct = new BudgetController(jwt, conn, users, budgets, null);
+        var ct = new BudgetController(jwt, conn, users, budgets, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/budgets/1/status")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -143,8 +151,10 @@ public final class BudgetControllerTest {
                 return bdg;
             }
         };
-        var ct = new BudgetController(jwt, null, users, bds, null);
+        var ct = new BudgetController(jwt, null, users, bds, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/budgets/1")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -158,8 +168,10 @@ public final class BudgetControllerTest {
     @Test
     public void testGetUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new BudgetController(jwt, null, null, null, null);
+        var ct = new BudgetController(jwt, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/budgets/1")
                 .withPath("id", 1)
                 .build();
 
@@ -193,7 +205,7 @@ public final class BudgetControllerTest {
                 return id == 1;
             }
         };
-        var ct = new BudgetController(jwt, null, users, bs, curs);
+        var ct = new BudgetController(jwt, null, users, bs, curs, TELEMETRY);
         var dto = new BudgetDto();
         dto.setDescription("descr");
         dto.setCurrency(1);
@@ -204,6 +216,8 @@ public final class BudgetControllerTest {
         dto.setStart(start);
         dto.setEnd(end);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/budgets")
                 .withAuth()
                 .withBody(dto)
                 .build();
@@ -226,7 +240,7 @@ public final class BudgetControllerTest {
     @Test
     public void testPostUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new BudgetController(jwt, null, null, null, null);
+        var ct = new BudgetController(jwt, null, null, null, null, TELEMETRY);
         var dto = new BudgetDto();
         dto.setValue(15.0);
         dto.setCurrency(1);
@@ -236,6 +250,8 @@ public final class BudgetControllerTest {
         dto.setStart(start);
         dto.setEnd(end);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/budgets")
                 .withBody(dto)
                 .build();
 
@@ -283,12 +299,14 @@ public final class BudgetControllerTest {
                 return id == 1 || id == 2;
             }
         };
-        var ct = new BudgetController(jwt, null, users, bs, curs);
+        var ct = new BudgetController(jwt, null, users, bs, curs, TELEMETRY);
         var dto = new BudgetDto();
         dto.setDescription("descr");
         dto.setCurrency(2);
         dto.setValue(15.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/budgets/1024")
                 .withPath("id", 1014)
                 .withAuth()
                 .withBody(dto)
@@ -307,10 +325,12 @@ public final class BudgetControllerTest {
     @Test
     public void testUpdateUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new BudgetController(jwt, null, null, null, null);
+        var ct = new BudgetController(jwt, null, null, null, null, TELEMETRY);
         var dto = new BudgetDto();
         dto.setDescription("1");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/budgets/1")
                 .withPath("id", 1)
                 .withBody(dto)
                 .build();
@@ -350,8 +370,10 @@ public final class BudgetControllerTest {
                 id = key;
             }
         };
-        var ct = new BudgetController(jwt, null, users, bs, null);
+        var ct = new BudgetController(jwt, null, users, bs, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/budgets/13")
                 .withAuth()
                 .withPath("id", 13)
                 .build();
@@ -365,8 +387,10 @@ public final class BudgetControllerTest {
     @Test
     public void testDeleteUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new BudgetController(jwt, null, null, null, null);
+        var ct = new BudgetController(jwt, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/budgets/1")
                 .withPath("id", 1)
                 .build();
 
