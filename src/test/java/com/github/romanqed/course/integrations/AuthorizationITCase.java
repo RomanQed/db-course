@@ -30,14 +30,15 @@ public final class AuthorizationITCase {
         var encoder = Util.createEncoder();
         var jwt = Util.createJwtProvider();
         var userRepo = Util.initUserRepo(connection, encoder);
+        var telemetry = OpenTelemetry.noop();
         auth = new AuthController(
                 userRepo,
                 jwt,
                 encoder,
                 null,
-                OpenTelemetry.noop()
+                telemetry
         );
-        users = Util.createUserController(jwt, encoder, userRepo);
+        users = Util.createUserController(jwt, encoder, userRepo, telemetry);
     }
 
     @AfterAll

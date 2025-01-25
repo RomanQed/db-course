@@ -15,6 +15,7 @@ import com.github.romanqed.course.models.User;
 import com.github.romanqed.course.postgres.PostgresRepository;
 import com.github.romanqed.jfunc.Function1;
 import com.github.romanqed.jfunc.Runnable1;
+import io.opentelemetry.api.OpenTelemetry;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 
@@ -110,14 +111,16 @@ public final class Util {
 
     public static UserController createUserController(JwtProvider<JwtUser> jwt,
                                                       Encoder encoder,
-                                                      Repository<User> users) {
+                                                      Repository<User> users,
+                                                      OpenTelemetry telemetry) {
         return new UserController(
                 jwt,
                 users,
                 null,
                 null,
                 null,
-                encoder
+                encoder,
+                telemetry
         );
     }
 
@@ -143,41 +146,6 @@ public final class Util {
     public static void execute(Connection c, String sql) throws SQLException {
         var statement = c.createStatement();
         statement.executeUpdate(sql);
-        statement.close();
-    }
-
-    public static void query(Function1<String, PreparedStatement> f,
-                             String sql,
-                             List<Object> args,
-                             Runnable1<ResultSet> consumer) throws Throwable {
-        var statement = f.invoke(sql);
-        var i = 1;
-        for (var arg : args) {
-            if (arg instanceof Date) {
-                statement.setObject(i++, arg, Types.TIMESTAMP);
-            } else {
-                statement.setObject(i++, arg);
-            }
-        }
-        var set = statement.executeQuery();
-        if (!set.next()) {
-            throw new IllegalStateException();
-        }
-        consumer.run(set);
-        statement.close();
-    }
-
-    public static void update(Function1<String, PreparedStatement> f, String sql, List<Object> args) throws Throwable {
-        var statement = f.invoke(sql);
-        var i = 1;
-        for (var arg : args) {
-            if (arg instanceof Date) {
-                statement.setObject(i++, arg, Types.TIMESTAMP);
-            } else {
-                statement.setObject(i++, arg);
-            }
-        }
-        statement.executeUpdate();
         statement.close();
     }
 

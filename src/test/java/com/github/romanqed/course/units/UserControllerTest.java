@@ -7,7 +7,10 @@ import com.github.romanqed.course.models.Account;
 import com.github.romanqed.course.models.Budget;
 import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class UserControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testGetSelf() {
@@ -30,8 +34,10 @@ public final class UserControllerTest {
                 return user;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
+        var ct = new UserController(jwt, users, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users")
                 .withAuth()
                 .build();
 
@@ -44,8 +50,10 @@ public final class UserControllerTest {
     @Test
     public void testGetSelfUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new UserController(jwt, null, null, null, null, null);
+        var ct = new UserController(jwt, null, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users")
                 .withPath("id", 0)
                 .build();
 
@@ -68,8 +76,10 @@ public final class UserControllerTest {
                 return user;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
+        var ct = new UserController(jwt, users, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/24")
                 .withAuth()
                 .withPath("id", 24)
                 .build();
@@ -91,8 +101,10 @@ public final class UserControllerTest {
                 return user;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
+        var ct = new UserController(jwt, users, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/24")
                 .withPath("id", 24)
                 .build();
 
@@ -120,10 +132,12 @@ public final class UserControllerTest {
             }
         };
         var encoder = new EncoderImpl();
-        var ct = new UserController(jwt, users, null, null, null, encoder);
+        var ct = new UserController(jwt, users, null, null, null, encoder, TELEMETRY);
         var dto = new UserUpdateDto();
         dto.setPassword("newpass");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/users")
                 .withBody(dto)
                 .withAuth()
                 .build();
@@ -138,11 +152,12 @@ public final class UserControllerTest {
     @Test
     public void testUpdateSelfUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new UserController(jwt, null, null, null, null, null);
+        var ct = new UserController(jwt, null, null, null, null, null, TELEMETRY);
         var dto = new UserUpdateDto();
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/users")
                 .withBody(dto)
-                .withPath("id", 0)
                 .build();
 
         ct.updateSelf(ctx.mock);
@@ -169,10 +184,12 @@ public final class UserControllerTest {
             }
         };
         var encoder = new EncoderImpl();
-        var ct = new UserController(jwt, users, null, null, null, encoder);
+        var ct = new UserController(jwt, users, null, null, null, encoder, TELEMETRY);
         var dto = new UserUpdateDto();
         dto.setPassword("newpass");
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/users/24")
                 .withPath("id", 24)
                 .withBody(dto)
                 .withAuth()
@@ -196,9 +213,11 @@ public final class UserControllerTest {
                 return user;
             }
         };
-        var ct = new UserController(jwt, users, null, null, null, null);
+        var ct = new UserController(jwt, users, null, null, null, null, TELEMETRY);
         var dto = new UserUpdateDto();
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.PATCH)
+                .withURI("/users/24")
                 .withPath("id", 24)
                 .withBody(dto)
                 .build();
@@ -232,8 +251,10 @@ public final class UserControllerTest {
                 return l;
             }
         };
-        var ct = new UserController(jwt, users, acs, null, null, null);
+        var ct = new UserController(jwt, users, acs, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/accounts")
                 .withAuth()
                 .withPath("id", 0)
                 .build();
@@ -247,8 +268,10 @@ public final class UserControllerTest {
     @Test
     public void testListAccountsUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new UserController(jwt, null, null, null, null, null);
+        var ct = new UserController(jwt, null, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/accounts")
                 .withPath("id", 0)
                 .build();
 
@@ -281,8 +304,10 @@ public final class UserControllerTest {
                 return l;
             }
         };
-        var ct = new UserController(jwt, users, null, bds, null, null);
+        var ct = new UserController(jwt, users, null, bds, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/budgets")
                 .withAuth()
                 .withPath("id", 0)
                 .build();
@@ -296,8 +321,10 @@ public final class UserControllerTest {
     @Test
     public void testListBudgetsUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new UserController(jwt, null, null, null, null, null);
+        var ct = new UserController(jwt, null, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/budgets")
                 .withPath("id", 0)
                 .build();
 
@@ -330,8 +357,10 @@ public final class UserControllerTest {
                 return l;
             }
         };
-        var ct = new UserController(jwt, users, null, null, ts, null);
+        var ct = new UserController(jwt, users, null, null, ts, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/transactions")
                 .withAuth()
                 .withPath("id", 0)
                 .build();
@@ -345,8 +374,10 @@ public final class UserControllerTest {
     @Test
     public void testListTransactionsUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new UserController(jwt, null, null, null, null, null);
+        var ct = new UserController(jwt, null, null, null, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users/0/transactions")
                 .withPath("id", 0)
                 .build();
 
