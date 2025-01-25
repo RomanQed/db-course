@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 100
 
-  server:
+  app:
     build:
       context: .
       dockerfile: App.dockerfile

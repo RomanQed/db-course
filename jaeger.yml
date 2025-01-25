@@ -2,7 +2,6 @@ version: "3"
 
 networks:
   jaeger:
-    driver: bridge
 
 services:
   jaeger:

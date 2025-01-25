@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 100
 
-  e2e:
+  app:
     build:
       context: .
       dockerfile: E2E.dockerfile

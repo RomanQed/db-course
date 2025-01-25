@@ -6,19 +6,17 @@ import com.github.romanqed.course.dto.NameDto;
 import com.github.romanqed.course.models.Category;
 import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
-import com.github.romanqed.course.otel.OtelUtil;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
-import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.romanqed.course.units.Otel.TELEMETRY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class CategoryControllerTest {
-    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testListTransactions() {
