@@ -10,6 +10,7 @@ import com.github.romanqed.course.dto.BudgetStatus;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.dto.TransactionDto;
 import com.github.romanqed.course.models.*;
+import com.github.romanqed.course.otel.OtelUtil;
 import com.github.romanqed.course.postgres.PostgresRepository;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
@@ -103,7 +104,8 @@ public final class BudgetITCase {
         );
         // Init controllers
         var jwt = Util.createJwtProvider();
-        auth = new AuthController(userRepo, jwt, encoder, null, Otel.TELEMETRY);
+        var telemetry = OtelUtil.createOtel("BudgetITCase");
+        auth = new AuthController(userRepo, jwt, encoder, null, telemetry);
         transactions = new TransactionController(
                 jwt,
                 connection,
@@ -111,7 +113,7 @@ public final class BudgetITCase {
                 trRepo,
                 catRepo,
                 accRepo,
-                Otel.TELEMETRY
+                telemetry
         );
         budgets = new BudgetController(
                 jwt,
@@ -119,7 +121,7 @@ public final class BudgetITCase {
                 userRepo,
                 bdRepo,
                 curRepo,
-                Otel.TELEMETRY
+                telemetry
         );
     }
 
