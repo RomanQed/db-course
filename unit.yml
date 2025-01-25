@@ -4,7 +4,7 @@ networks:
   jaeger:
 
 services:
-  app:
+  unit:
     build:
       context: .
       dockerfile: Unit.dockerfile

@@ -22,7 +22,7 @@ services:
     networks:
       - itn
 
-  app:
+  its:
     build:
       context: .
       dockerfile: IT.dockerfile
