@@ -9,6 +9,7 @@ import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.Currency;
 import com.github.romanqed.course.models.Exchange;
 import com.github.romanqed.course.postgres.PostgresRepository;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
@@ -80,6 +81,8 @@ public final class ExchangeITCase {
     public void test() throws SQLException {
         // Login as admin
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/login")
                 .withBody(Util.ofCreds("admin", "pass"))
                 .build();
         auth.login(ctx.mock);
@@ -87,6 +90,8 @@ public final class ExchangeITCase {
         var token = ((Token) ctx.body).getToken();
         // Add first currency
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/currencies")
                 .withBody(Util.ofName("first"))
                 .withAuth(token)
                 .build();
@@ -96,6 +101,8 @@ public final class ExchangeITCase {
         assertEquals("first", first.getName());
         // Add second currency
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/currencies")
                 .withBody(Util.ofName("second"))
                 .withAuth(token)
                 .build();
@@ -109,6 +116,8 @@ public final class ExchangeITCase {
         dto.setTo(second.getId());
         dto.setFactor(0.01);
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/exchanges")
                 .withBody(dto)
                 .withAuth(token)
                 .build();
@@ -117,6 +126,8 @@ public final class ExchangeITCase {
         var posted = (List<Exchange>) ctx.body;
         // Get entries by controller
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/exchanges")
                 .withEmptyQuery("from", Integer.class)
                 .withEmptyQuery("to", Integer.class)
                 .build();
@@ -130,6 +141,8 @@ public final class ExchangeITCase {
         assertExchanges(found, first, second);
         // Delete exchange
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/exchanges/" + posted.get(0).getId())
                 .withAuth(token)
                 .withPath("id", posted.get(0).getId())
                 .build();
@@ -137,6 +150,8 @@ public final class ExchangeITCase {
         assertEquals(HttpStatus.OK, ctx.status);
         // Check if there is no exchange entries
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/exchanges")
                 .withEmptyQuery("from", Integer.class)
                 .withEmptyQuery("to", Integer.class)
                 .build();

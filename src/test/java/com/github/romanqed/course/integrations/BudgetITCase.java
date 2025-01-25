@@ -11,6 +11,7 @@ import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.dto.TransactionDto;
 import com.github.romanqed.course.models.*;
 import com.github.romanqed.course.postgres.PostgresRepository;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
@@ -148,6 +149,8 @@ public final class BudgetITCase {
     public void test() throws SQLException {
         // Login
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/login")
                 .withBody(Util.ofCreds("admin", "pass"))
                 .build();
         auth.login(ctx.mock);
@@ -161,6 +164,8 @@ public final class BudgetITCase {
         bDto.setDescription("descr");
         bDto.setValue(0.0);
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/budgets")
                 .withAuth(token)
                 .withBody(bDto)
                 .build();
@@ -175,6 +180,8 @@ public final class BudgetITCase {
         makeTransaction(token, 1000, null, accId);
         // Calculate budget
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/budgets/" + budget.getId() + "/status")
                 .withAuth(token)
                 .withPath("id", budget.getId())
                 .build();

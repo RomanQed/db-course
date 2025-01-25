@@ -7,6 +7,7 @@ import com.github.romanqed.course.dto.TwoFactorDto;
 import com.github.romanqed.course.email.LocalMailerStub;
 import com.github.romanqed.course.models.User;
 import com.google.gson.Gson;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
@@ -106,6 +107,8 @@ public final class TwoFactorITCase {
     public void test() throws IOException, InterruptedException {
         // Login
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/login")
                 .withBody(Util.ofCreds("user", "123"))
                 .build();
         auth.login(ctx.mock);
@@ -119,6 +122,8 @@ public final class TwoFactorITCase {
         dto.setLogin("user");
         dto.setCode(code);
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/2fa")
                 .withBody(dto)
                 .build();
         auth.login2Fa(ctx.mock);

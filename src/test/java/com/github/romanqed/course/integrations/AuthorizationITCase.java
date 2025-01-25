@@ -5,6 +5,7 @@ import com.github.romanqed.course.controllers.AuthController;
 import com.github.romanqed.course.controllers.UserController;
 import com.github.romanqed.course.dto.Token;
 import com.github.romanqed.course.models.User;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
@@ -51,6 +52,8 @@ public final class AuthorizationITCase {
     public void test() {
         // Register new user
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/register")
                 .withBody(Util.ofCreds("myuser", "1234pass"))
                 .build();
         auth.register(ctx.mock);
@@ -58,6 +61,8 @@ public final class AuthorizationITCase {
         var token = ((Token) ctx.body).getToken();
         // Get user by token
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users")
                 .withAuth(token)
                 .build();
         users.getSelf(ctx.mock);
@@ -67,6 +72,8 @@ public final class AuthorizationITCase {
         assertFalse(user.isAdmin());
         // Login with admin user
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/login")
                 .withBody(Util.ofCreds("admin", "pass"))
                 .build();
         auth.login(ctx.mock);
@@ -74,6 +81,8 @@ public final class AuthorizationITCase {
         token = ((Token) ctx.body).getToken();
         // Get admin by token
         ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/users")
                 .withAuth(token)
                 .build();
         users.getSelf(ctx.mock);
