@@ -98,11 +98,9 @@ public final class OtelUtil {
         // Create metrics
         var meterProvider = createMeterProvider();
         if (meterProvider == null) {
-            // Create otel
             var ret = OpenTelemetrySdk.builder()
                     .setTracerProvider(tracerProvider)
                     .build();
-            // Register hook
             Runtime.getRuntime().addShutdownHook(new Thread(ret::close));
             return ret;
         }
