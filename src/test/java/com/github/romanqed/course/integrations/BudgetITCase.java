@@ -132,6 +132,8 @@ public final class BudgetITCase {
         dto.setTo(to);
         dto.setValue(value);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/transactions")
                 .withAuth(token)
                 .withBody(dto)
                 .build();
