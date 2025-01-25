@@ -66,6 +66,6 @@ public final class OtelUtil {
         if (endpoint == null) {
             return OpenTelemetry.noop();
         }
-        return createOtel(endpoint);
+        return createOtel(endpoint, app);
     }
 }
