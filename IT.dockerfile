@@ -6,4 +6,4 @@ RUN cd /usr/src/server && rm -rf /usr/src/server/build
 
 WORKDIR "/usr/src/server"
 
-CMD ["gradle", ":test", "--tests", "com.github.romanqed.course.integrations.*"]
+CMD ["gradle", ":clean", ":test", "--tests", "com.github.romanqed.course.integrations.*"]

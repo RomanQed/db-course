@@ -8,4 +8,4 @@ run_script() {
 }
 
 run_script conf_auth.sh --default
-gradle shadowJar
+gradle :clean :shadowJar

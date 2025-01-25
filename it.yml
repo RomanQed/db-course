@@ -2,12 +2,13 @@ version: "3"
 
 networks:
   itn:
+  jaeger:
 
 services:
   pdb:
     image: postgres
     networks:
-      itn:
+      - itn
     environment:
       POSTGRES_PASSWORD: postgres
     healthcheck:
@@ -19,14 +20,15 @@ services:
   fakemail:
     image: gessnerfl/fake-smtp-server
     networks:
-      itn:
+      - itn
 
   its:
     build:
       context: .
       dockerfile: IT.dockerfile
     networks:
-      itn:
+      - itn
+      - jaeger
     depends_on:
       pdb:
         condition: service_healthy
@@ -36,4 +38,4 @@ services:
       DB_CONN: jdbc:postgresql://pdb:5432
       MAIL_SERVER: fakemail
       SMTP_FAKE_SERVER: http://fakemail:8080
-      JAEGER_ENDPOINT: http://localhost:4317
+      JAEGER_ENDPOINT: http://jaeger:4317

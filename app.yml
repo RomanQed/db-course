@@ -8,7 +8,7 @@ services:
     image: postgres
     restart: on-failure
     networks:
-      course-network:
+      - course-network
     ports:
       - "5432:5432"
     environment:
@@ -25,7 +25,7 @@ services:
       dockerfile: App.dockerfile
     restart: on-failure
     networks:
-      course-network:
+      - course-network
     ports:
       - "8080:8080"
     depends_on:

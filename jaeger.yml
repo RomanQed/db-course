@@ -1,0 +1,16 @@
+version: "3"
+
+networks:
+  jaeger:
+    driver: bridge
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "4317:4317"
+      - "16686:16686"
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    networks:
+      - jaeger

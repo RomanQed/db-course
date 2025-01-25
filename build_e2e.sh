@@ -16,4 +16,4 @@ rm postgres.json
 rm server.json
 cp e2e/postgres.json postgres.json
 cp e2e/server.json server.json
-gradle e2e:shadowJar
+gradle e2e:clean e2e:shadowJar

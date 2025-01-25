@@ -2,12 +2,13 @@ version: "3"
 
 networks:
   e2en:
+  jaeger:
 
 services:
   pdb:
     image: postgres
     networks:
-      e2en:
+      - e2en
     environment:
       POSTGRES_PASSWORD: postgres
     healthcheck:
@@ -21,10 +22,11 @@ services:
       context: .
       dockerfile: E2E.dockerfile
     networks:
-      e2en:
+      - e2en
+      - jaeger
     environment:
       OTEL_SERVICE_NAME: DbCourseE2E
-      JAEGER_ENDPOINT: http://localhost:4317
+      JAEGER_ENDPOINT: http://jaeger:4317
     depends_on:
       pdb:
         condition: service_healthy

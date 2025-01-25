@@ -1,9 +1,14 @@
 version: "3"
 
+networks:
+  jaeger:
+
 services:
   unit:
     build:
       context: .
       dockerfile: Unit.dockerfile
     environment:
-      JAEGER_ENDPOINT: http://localhost:4317
+      JAEGER_ENDPOINT: http://jaeger:4317
+    networks:
+      - jaeger
