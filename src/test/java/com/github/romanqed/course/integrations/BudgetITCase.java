@@ -14,7 +14,6 @@ import com.github.romanqed.course.otel.OtelUtil;
 import com.github.romanqed.course.postgres.PostgresRepository;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
-import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

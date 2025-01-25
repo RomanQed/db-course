@@ -1,11 +1,18 @@
 package com.github.romanqed.course.otel;
 
 import com.github.romanqed.jfunc.Exceptions;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.jvm.*;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.exporter.prometheus.PrometheusHttpServer;
+import io.opentelemetry.instrumentation.micrometer.v1_5.OpenTelemetryMeterRegistry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
@@ -15,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class OtelUtil {
     private static final String JAEGER_ENDPOINT = "JAEGER_ENDPOINT";
+    private static final String METRICS_PORT = "METRICS_PORT";
     private static final AttributeKey<String> SERVICE_NAME = AttributeKey.stringKey("service.name");
     private static final AttributeKey<String> HOST_NAME = AttributeKey.stringKey("host.name");
     private static final AttributeKey<String> HOST_TYPE = AttributeKey.stringKey("host.type");
@@ -22,6 +30,24 @@ public final class OtelUtil {
     private static final AttributeKey<String> OS_VERSION = AttributeKey.stringKey("os.version");
 
     private OtelUtil() {
+    }
+
+    private static Runnable addResourceMetrics(MeterRegistry registry) {
+        new JvmInfoMetrics().bindTo(registry);
+        new ClassLoaderMetrics().bindTo(registry);
+        new JvmMemoryMetrics().bindTo(registry);
+        var gcm = new JvmGcMetrics();
+        gcm.bindTo(registry);
+        new ProcessorMetrics().bindTo(registry);
+        new UptimeMetrics().bindTo(registry);
+        new JvmThreadMetrics().bindTo(registry);
+        new JvmThreadDeadlockMetrics().bindTo(registry);
+        var hpm = new JvmHeapPressureMetrics();
+        hpm.bindTo(registry);
+        return () -> {
+            gcm.close();
+            hpm.close();
+        };
     }
 
     private static Attributes getServiceAttributes(String app) {
@@ -38,6 +64,23 @@ public final class OtelUtil {
         );
     }
 
+    private static SdkMeterProvider createMeterProvider() {
+        var raw = System.getenv(METRICS_PORT);
+        if (raw == null) {
+            return null;
+        }
+        var port = Exceptions.suppress(() -> Integer.parseInt(raw), t -> null);
+        if (port == null) {
+            return null;
+        }
+        var server = PrometheusHttpServer.builder()
+                .setPort(port)
+                .build();
+        return SdkMeterProvider.builder()
+                .registerMetricReader(server)
+                .build();
+    }
+
     public static OpenTelemetry createOtel(String endpoint, String app) {
         // Create exporter
         var exporter = OtlpGrpcSpanExporter.builder()
@@ -48,16 +91,34 @@ public final class OtelUtil {
         var attributes = getServiceAttributes(app);
         var resource = Resource.create(attributes);
         // Create provider
-        var provider = SdkTracerProvider.builder()
+        var tracerProvider = SdkTracerProvider.builder()
                 .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
                 .setResource(Resource.getDefault().merge(resource))
                 .build();
-        // Create otel
+        // Create metrics
+        var meterProvider = createMeterProvider();
+        if (meterProvider == null) {
+            // Create otel
+            var ret = OpenTelemetrySdk.builder()
+                    .setTracerProvider(tracerProvider)
+                    .build();
+            // Register hook
+            Runtime.getRuntime().addShutdownHook(new Thread(ret::close));
+            return ret;
+        }
         var ret = OpenTelemetrySdk.builder()
-                .setTracerProvider(provider)
+                .setTracerProvider(tracerProvider)
+                .setMeterProvider(meterProvider)
                 .build();
-        // Register hook
-        Runtime.getRuntime().addShutdownHook(new Thread(ret::close));
+        var registry = OpenTelemetryMeterRegistry.builder(ret)
+                .setPrometheusMode(true)
+                .build();
+        var closer = addResourceMetrics(registry);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            ret.close();
+            registry.close();
+            closer.run();
+        }));
         return ret;
     }
 

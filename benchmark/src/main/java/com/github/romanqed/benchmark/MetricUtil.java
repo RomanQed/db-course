@@ -1,6 +1,7 @@
 package com.github.romanqed.benchmark;
 
 import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
@@ -13,13 +14,7 @@ import java.io.IOException;
 
 public final class MetricUtil {
 
-    public static Runnable startMetricServer() throws IOException {
-        // Start metric server
-        var registry = new PrometheusMeterRegistry(
-                PrometheusConfig.DEFAULT,
-                PrometheusRegistry.defaultRegistry,
-                Clock.SYSTEM
-        );
+    public static Runnable addResourceMetrics(MeterRegistry registry) {
         new JvmInfoMetrics().bindTo(registry);
         new ClassLoaderMetrics().bindTo(registry);
         new JvmMemoryMetrics().bindTo(registry);
@@ -31,6 +26,20 @@ public final class MetricUtil {
         new JvmThreadDeadlockMetrics().bindTo(registry);
         var hpm = new JvmHeapPressureMetrics();
         hpm.bindTo(registry);
+        return () -> {
+            gcm.close();
+            hpm.close();
+        };
+    }
+
+    public static Runnable startMetricServer() throws IOException {
+        // Start metric server
+        var registry = new PrometheusMeterRegistry(
+                PrometheusConfig.DEFAULT,
+                PrometheusRegistry.defaultRegistry,
+                Clock.SYSTEM
+        );
+        var closer = addResourceMetrics(registry);
         var metricPort = Integer.parseInt(System.getenv("METRIC_PORT"));
         System.out.println("METRIC_PORT: " + metricPort);
         var metrics = HTTPServer.builder()
@@ -39,8 +48,7 @@ public final class MetricUtil {
         return () -> {
             metrics.close();
             registry.close();
-            gcm.close();
-            hpm.close();
+            closer.run();
         };
     }
 }

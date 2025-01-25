@@ -50,6 +50,10 @@ dependencies {
     implementation group: 'io.opentelemetry', name: 'opentelemetry-api', version: '1.46.0'
     implementation group: 'io.opentelemetry', name: 'opentelemetry-sdk', version: '1.46.0'
     implementation group: 'io.opentelemetry', name: 'opentelemetry-exporter-otlp', version: '1.46.0'
+    // Metrics
+    implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.14.3'
+    implementation group: 'io.opentelemetry.instrumentation', name: 'opentelemetry-micrometer-1.5', version: '2.12.0-alpha'
+    implementation group: 'io.opentelemetry', name: 'opentelemetry-exporter-prometheus', version: '1.46.0-alpha'
     // Jeflect
     implementation group: 'com.github.romanqed', name: 'jeflect', version: '1.1.4L'
     // Annotation processor

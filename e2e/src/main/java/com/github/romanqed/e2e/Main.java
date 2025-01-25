@@ -102,7 +102,8 @@ public class Main {
                 .header("Authorization", "Bearer " + token)
                 .POST(to(eDto))
                 .build();
-        var exchanges = (List<Exchange>) from(send(r3), new TypeToken<List<Exchange>>(){}.getType());
+        var exchanges = (List<Exchange>) from(send(r3), new TypeToken<List<Exchange>>() {
+        }.getType());
         System.out.print("[1.4] Exchanges ids: ");
         System.out.println(exchanges.get(0).getId() + ", " + exchanges.get(1).getId());
 
@@ -188,7 +189,8 @@ public class Main {
                 root,
                 "/users/" + id + "/accounts",
                 token,
-                new TypeToken<List<Account>>(){}.getType()
+                new TypeToken<List<Account>>() {
+                }.getType()
         );
         accounts.forEach(Main::print);
         if (accounts.size() != 1 || accounts.get(0).getId() != account.getId()) {
@@ -200,7 +202,8 @@ public class Main {
                 root,
                 "/users/" + id + "/budgets",
                 token,
-                new TypeToken<List<Budget>>(){}.getType()
+                new TypeToken<List<Budget>>() {
+                }.getType()
         );
         budgets.forEach(Main::print);
         if (budgets.size() != 1 || budgets.get(0).getId() != budget.getId()) {
@@ -212,7 +215,8 @@ public class Main {
                 root,
                 "/users/" + id + "/transactions",
                 token,
-                new TypeToken<List<Transaction>>(){}.getType()
+                new TypeToken<List<Transaction>>() {
+                }.getType()
         );
         transactions.forEach(Main::print);
         var s1 = new HashSet<Integer>();
