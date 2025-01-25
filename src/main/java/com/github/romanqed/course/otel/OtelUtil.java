@@ -24,13 +24,13 @@ public final class OtelUtil {
     private OtelUtil() {
     }
 
-    private static Attributes getServiceAttributes() {
+    private static Attributes getServiceAttributes(String app) {
         var hostName = Exceptions.suppress(() -> InetAddress.getLocalHost().getHostName(), t -> "unknown");
         var hostType = System.getProperty("os.arch");
         var osName = System.getProperty("os.name");
         var osVersion = System.getProperty("os.version");
         return Attributes.of(
-                SERVICE_NAME, "DbCourse",
+                SERVICE_NAME, app,
                 HOST_NAME, hostName,
                 HOST_TYPE, hostType,
                 OS_NAME, osName,
@@ -38,14 +38,14 @@ public final class OtelUtil {
         );
     }
 
-    public static OpenTelemetry createOtel(String endpoint) {
+    public static OpenTelemetry createOtel(String endpoint, String app) {
         // Create exporter
         var exporter = OtlpGrpcSpanExporter.builder()
                 .setEndpoint(endpoint)
                 .setTimeout(30, TimeUnit.SECONDS)
                 .build();
         // Get service attributes
-        var attributes = getServiceAttributes();
+        var attributes = getServiceAttributes(app);
         var resource = Resource.create(attributes);
         // Create provider
         var provider = SdkTracerProvider.builder()
@@ -61,7 +61,7 @@ public final class OtelUtil {
         return ret;
     }
 
-    public static OpenTelemetry createOtel() {
+    public static OpenTelemetry createOtel(String app) {
         var endpoint = System.getenv(JAEGER_ENDPOINT);
         if (endpoint == null) {
             return OpenTelemetry.noop();

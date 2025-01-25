@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public final class AuthControllerTest {
-    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testRegister() {

@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class CurrencyControllerTest {
-    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testGet() {

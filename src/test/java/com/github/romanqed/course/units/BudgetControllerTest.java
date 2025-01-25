@@ -24,7 +24,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 public final class BudgetControllerTest {
-    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel();
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testStatus() throws SQLException {

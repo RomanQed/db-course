@@ -111,7 +111,8 @@ public final class BudgetITCase {
                 userRepo,
                 trRepo,
                 catRepo,
-                accRepo
+                accRepo,
+                telemetry
         );
         budgets = new BudgetController(
                 jwt,

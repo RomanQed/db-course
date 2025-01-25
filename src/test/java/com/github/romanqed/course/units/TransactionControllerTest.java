@@ -7,7 +7,10 @@ import com.github.romanqed.course.models.Account;
 import com.github.romanqed.course.models.Category;
 import com.github.romanqed.course.models.Transaction;
 import com.github.romanqed.course.models.User;
+import com.github.romanqed.course.otel.OtelUtil;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
+import io.opentelemetry.api.OpenTelemetry;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -18,6 +21,7 @@ import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class TransactionControllerTest {
+    private static final OpenTelemetry TELEMETRY = OtelUtil.createOtel("UnitTests");
 
     @Test
     public void testGet() {
@@ -39,8 +43,10 @@ public final class TransactionControllerTest {
                 return tr;
             }
         };
-        var ct = new TransactionController(jwt, null, users, trs, null, null);
+        var ct = new TransactionController(jwt, null, users, trs, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/transactions/1")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -54,8 +60,18 @@ public final class TransactionControllerTest {
     @Test
     public void testGetUnauthorized() {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new TransactionController(jwt, null, null, null, null, null);
+        var ct = new TransactionController(
+                jwt,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TELEMETRY
+        );
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.GET)
+                .withURI("/transactions/1")
                 .withPath("id", 1)
                 .build();
 
@@ -111,7 +127,7 @@ public final class TransactionControllerTest {
         Mockito.when(conn.createStatement())
                 .thenReturn(st);
         //
-        var ct = new TransactionController(jwt, conn, users, trs, cats, acs);
+        var ct = new TransactionController(jwt, conn, users, trs, cats, acs, TELEMETRY);
         var dto = new TransactionDto();
         dto.setFrom(16);
         dto.setTo(17);
@@ -119,6 +135,8 @@ public final class TransactionControllerTest {
         dto.setCategory(15);
         dto.setValue(10.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/transactions")
                 .withAuth()
                 .withBody(dto)
                 .build();
@@ -138,7 +156,15 @@ public final class TransactionControllerTest {
     @Test
     public void postNotAuthorized() throws SQLException {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new TransactionController(jwt, null, null, null, null, null);
+        var ct = new TransactionController(
+                jwt,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TELEMETRY
+        );
         var dto = new TransactionDto();
         dto.setFrom(16);
         dto.setTo(17);
@@ -146,6 +172,8 @@ public final class TransactionControllerTest {
         dto.setCategory(15);
         dto.setValue(10.0);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.POST)
+                .withURI("/transactions")
                 .withBody(dto)
                 .build();
 
@@ -183,8 +211,10 @@ public final class TransactionControllerTest {
         Mockito.when(conn.createStatement())
                 .thenReturn(st);
         //
-        var ct = new TransactionController(jwt, conn, users, trs, null, null);
+        var ct = new TransactionController(jwt, conn, users, trs, null, null, TELEMETRY);
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/transactions/1")
                 .withAuth()
                 .withPath("id", 1)
                 .build();
@@ -197,8 +227,18 @@ public final class TransactionControllerTest {
     @Test
     public void testDeleteNotAuthorized() throws SQLException {
         var jwt = MockUtil.mockProvider(0);
-        var ct = new TransactionController(jwt, null, null, null, null, null);
+        var ct = new TransactionController(
+                jwt,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TELEMETRY
+        );
         var ctx = MockUtil.ctxBuilder()
+                .withMethod(HandlerType.DELETE)
+                .withURI("/transactions/1")
                 .withPath("id", 1)
                 .build();
 

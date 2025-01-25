@@ -15,6 +15,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
@@ -54,23 +55,40 @@ public final class BudgetController extends AuthBase {
                 .startSpan();
     }
 
-    private BudgetStatus get(int id, int user) throws SQLException {
+    private BudgetStatus get(int id, int user, Span span) throws SQLException {
         var sql = String.format("select get_budget_status(%d, %d)", id, user);
-        var statement = connection.createStatement();
-        var set = statement.executeQuery(sql);
-        if (!set.next()) {
-            throw new IllegalStateException("Cannot retrieve budget status");
+        span.addEvent("PreparedSqlQuery", Attributes.builder()
+                .put("query", sql)
+                .build()
+        );
+        try {
+            var statement = connection.createStatement();
+            var set = statement.executeQuery(sql);
+            if (!set.next()) {
+                span.addEvent("CannotRetrieveStatus");
+                span.end();
+                throw new IllegalStateException("Cannot retrieve budget status");
+            }
+            var value = set.getObject(1, PGobject.class).getValue();
+            if (value == null) {
+                span.addEvent("InvalidPostgresResponse");
+                span.end();
+                throw new IllegalStateException("Invalid postgresql response");
+            }
+            var raw = value.substring(1, value.length() - 1).split(",");
+            var ret = new BudgetStatus();
+            ret.setSpent(Double.parseDouble(raw[0]));
+            ret.setGot(Double.parseDouble(raw[1]));
+            ret.setTotal(Double.parseDouble(raw[2]));
+            return ret;
+        } catch (SQLException e) {
+            span.addEvent("SqlExceptionOccurred", Attributes.builder()
+                    .put("exception", e.toString())
+                    .build()
+            );
+            span.end();
+            throw e;
         }
-        var value = set.getObject(1, PGobject.class).getValue();
-        if (value == null) {
-            throw new IllegalStateException("Invalid postgresql response");
-        }
-        var raw = value.substring(1, value.length() - 1).split(",");
-        var ret = new BudgetStatus();
-        ret.setSpent(Double.parseDouble(raw[0]));
-        ret.setGot(Double.parseDouble(raw[1]));
-        ret.setTotal(Double.parseDouble(raw[2]));
-        return ret;
     }
 
     @Route(method = HandlerType.GET, route = "/{id}/status")
@@ -82,7 +100,7 @@ public final class BudgetController extends AuthBase {
             span.end();
             return;
         }
-        var status = get(id, found.getOwner());
+        var status = get(id, found.getOwner(), span);
         ctx.json(status);
         span.addEvent("StatusCalculated");
         span.end();
